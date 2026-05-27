@@ -4,6 +4,7 @@ set -eu
 # Validate coverage against COVERAGE_THRESHOLD; generate coverage if missing.
 # Env:
 #   COVERAGE_THRESHOLD - integer percentage (e.g., 90)
+# Usage: ./coverage_check.sh
 
 THRESHOLD=${COVERAGE_THRESHOLD:-80}
 OUT_DIR=tmp

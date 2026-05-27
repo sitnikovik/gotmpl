@@ -3,6 +3,7 @@ run:
   tests: true
   modules-download-mode: readonly
 
+
 linters:
   enable:
     - gofmt

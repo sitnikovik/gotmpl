@@ -1,9 +1,10 @@
-name: Check Quality
+name: Quality
 
 on:
   pull_request:
 
 jobs:
+  # Runs all tests in the project
   test:
     runs-on: ubuntu-latest
     steps:
@@ -17,6 +18,7 @@ jobs:
         run: |
           make test
 
+  # Lints all the code in the project
   lint:
     runs-on: ubuntu-latest
     steps:
@@ -36,6 +38,7 @@ jobs:
         run: |
           make lint
 
+  # Checks code test coverage
   coverage:
     runs-on: ubuntu-latest
     steps:

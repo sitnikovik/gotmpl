@@ -4,7 +4,7 @@
 
 # Run all checks required to validate the codebase before merging.
 .PHONY: check
-check: test lint coverage-check
+check: test lint coverage-check .blackbox-tests-check
 
 # Run all tests in the project.
 .PHONY: test
@@ -36,6 +36,7 @@ integration-test:
 .PHONY: lint
 lint:
 	@golangci-lint run
+	@./blackbox_tests_check.sh
 
 # Generate coverage report combining unit and integration tests.
 # Outputs total coverage percentage to tmp/coverage_total.out,
