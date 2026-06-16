@@ -1,5 +1,27 @@
 # Code Style Guide
 
+## TLDR
+
+- [Declarative style](#declarative-style)
+  - ✅ [No Setters](#no-setters)
+  - ✅ [No Getters](#no-getters)
+  - 🔸 [What if I need to change value?](#what-if-i-need-to-change-value)
+  - ✅ [No logic in constructors](#no-logic-in-constructors)
+  - ✅ [Custom types](#custom-types)
+  - 🔸 [Funcs return only one value](#funcs-return-only-one-value)
+- [Document all](#document-all)
+  - ✅ [What the function does](#what-the-function-does)
+- [Exporting](#exporting)
+  - 🔸 [Functions must be exported](#functions-must-be-exported)
+  - 🔸 [Any type must have a constructor](#any-type-must-have-a-constructor)
+  - 🔸 [Types must be exported](#types-must-be-exported)
+  - 🔸 [Fields must be unexported](#fields-must-be-unexported)
+- [Test all](#test-all)
+  - ✅ [Testify](#testify)
+  - ✅ [Separate test packages](#separate-test-packages)
+  - ✅ [Structs in tests](#structs-in-tests)
+- ✅ [No newlines in functions](#no-newlines-in-functions)
+
 ## Declarative style
 
 Favor a declarative programming style over imperative.
@@ -7,7 +29,7 @@ That means expressing the logic of computation without describing its control fl
 
 ### No setters
 
-> Setters are evil
+> ⚠️ Setters are evil
 
 Avoid defining setter methods that simply assign values to struct fields.
 If you need to modify a field it seems that you wrong design of your struct.
@@ -59,7 +81,7 @@ func processOrder(o *order.Order) {
 
 ### No getters
 
-> Getters are evil
+> ⚠️ Getters are evil
 
 If you do not use setters - getters are useless.
 If you really need to get some data from the struct - just omit `Get` prefix in the method name. That is all!
@@ -134,8 +156,12 @@ func processOrder(o *order.Order) {
 ```
 
 Look! No `Get` prefix! Just `Price()` method that returns the price.
-And we **do not have any setters**! The `price` field is immutable after the struct creation!
+And we **do not have any setters**! The `price` field is immutable after the struct created!
 **We are sure that no one can change the price unexpectedly!**
+
+### What if I need to change value?
+
+For what? 
 
 ### No logic in constructors
 
@@ -234,7 +260,14 @@ Every function or method is intended to be used outside its package and must be 
 This makes the function accessible to other packages.
 
 We do not allow any unexported functions in the codebase!
-If you dedicate a code in a function - it must be accessible from others outside the package!
+
+> ⚠️ If you dedicate a code in a function - it must be accessible from others outside the package!
+
+**❌ Bad:**
+
+```go
+
+```
 
 #### Functions must be exported: config example
 
@@ -485,8 +518,8 @@ func TestName_String(t *testing.T) {
     }{
         {
             name: "some case",
-            n: Name{
-                value: "example.txt",  
+            n: Name{ // Allows to create with a literal
+                value: "example.txt", // With unexported fields!
             },
             // ...
         }
@@ -519,7 +552,7 @@ func TestName_String(t *testing.T) {
     }{
         {
             name: "some case",
-            n: NewName("example.txt"),
+            n: NewName("example.txt"), // Obligates to use the constructor
             // ...
         }
     }
@@ -530,6 +563,10 @@ func TestName_String(t *testing.T) {
     }
 }
 ```
+
+Using unexported fields in tests is also prohibited
+excluding the test structs in which we define the test cases.
+But it still does not allow you to use this fields of the implementation that you test!
 
 ### Structs in tests
 
@@ -728,18 +765,43 @@ and the code supposed to be more readable and understable.
 
 Avoid unnecessary newlines within function bodies to maintain readability and compactness.
 
-**✅ Good:**
-
-```go
-func Add(a int, b int) int {
-    return a + b
-}
-```
-
 **❌ Bad:**
 
 ```go
-func Add(a int, b int) int {
-    return a + b
+func (c Config) Validate() error {
+    if с.Empty() {
+        return nil
+    }
+
+    if с.usr == "" {
+        return errors.New("empty username")
+    }
+
+    if с.pwd == "" {
+        return errors.New("empty password")
+    }
+    
+    return nil
 }
 ```
+
+**✅ Good:**
+
+```go
+func (c Config) Validate() error {
+    if с.Empty() {
+        return nil
+    }
+    if с.usr == "" {
+        return errors.New("empty username")
+    }
+    if с.pwd == "" {
+        return errors.New("empty password")
+    }
+    return nil
+}
+```
+
+First time you may decide that this rule is too harsh and excessive.
+Please believe me! This way makes us to build very small functions and to simplify the code.
+Just try it and you will see the benefits soon!
