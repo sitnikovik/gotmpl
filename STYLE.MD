@@ -5,12 +5,15 @@
 - [Declarative style](#declarative-style)
   - ✅ [No Setters](#no-setters)
   - ✅ [No Getters](#no-getters)
-  - 🔸 [What if I need to change value?](#what-if-i-need-to-change-value)
+  - 🔸 [Immutability](#immutability)
+  - ✅ [Functional options](#functional-options)
+  - ✅ [One type — one constructor](#one-type--one-constructor)
   - ✅ [No logic in constructors](#no-logic-in-constructors)
-  - ✅ [Custom types](#custom-types)
+  - 🔸 [Custom types](#custom-types)
   - 🔸 [Funcs return only one value](#funcs-return-only-one-value)
 - [Document all](#document-all)
   - ✅ [What the function does](#what-the-function-does)
+  - 🔸 [No comments]
 - [Exporting](#exporting)
   - 🔸 [Functions must be exported](#functions-must-be-exported)
   - 🔸 [Any type must have a constructor](#any-type-must-have-a-constructor)
@@ -20,7 +23,9 @@
   - ✅ [Testify](#testify)
   - ✅ [Separate test packages](#separate-test-packages)
   - ✅ [Structs in tests](#structs-in-tests)
+  - ✅ [Parallel tests](#parallel-tests)
 - ✅ [No newlines in functions](#no-newlines-in-functions)
+- 🔸 [No nil]
 
 ## Declarative style
 
@@ -159,14 +164,405 @@ Look! No `Get` prefix! Just `Price()` method that returns the price.
 And we **do not have any setters**! The `price` field is immutable after the struct created!
 **We are sure that no one can change the price unexpectedly!**
 
-### What if I need to change value?
+### Immutability
 
-For what? 
+> ⚡️ Immutability is the key to solve a lot of problems
+that coult be made in the projects!
+
+The object cannot be changed after created!
+If you really need to do it then create the new one
+with the new value but specify it in a constructor.
+
+But you may say that some values can be set after time
+or at the moment when the value is finally known or we got it.
+Of course, it is possible.
+But ask yourself at lease one of these:
+
+### Functional options
+
+> 💡 All the values could be set in a constructor
+
+All! Remember that! Even there are a lot of fields in the struct,
+they still could be specified in a constructor via **functional options**.
+
+**❌ Bad:**
+
+File: *order.go*
+
+```go
+package order
+
+type Order struct {
+    uuid string
+    status string
+    userID string
+    address string
+    phone string
+    price int64
+    priority uint8
+}
+
+func NewOrder(
+    uuid string,
+    status string,
+    userID string,
+    address string,
+    phone string,
+    price int64,
+    priority uint8,
+) *Order {
+    return &Order{
+        uuid: uuid,
+        status: status,
+        userID: userID,
+        address: address,
+        phone: phone,
+        price: price,
+        priority: prioriry,
+    }
+}
+```
+
+**✅ Good:**
+
+File: *order.go*
+
+```go
+package order
+
+type Order struct {
+    uuid string
+    status string
+    userID string
+    address string
+    phone string
+    price int64
+    priority uint8
+}
+
+func NewOrder(
+    uuid string,
+    status string,
+    ...opts Option,
+) *Order {
+    o := &Order{
+        uuid: uuid,
+        status: status,
+    }
+    for _, opt range opts {
+        opt(o)
+    }
+    return o
+}
+```
+
+File: *order.go*
+
+```go
+package order
+
+type Option func(*Order)
+
+func WithPrice(p int64) Option {
+    return func(o *Order) {
+        o.price = p
+    }
+}
+
+
+func WithAddress(addr string) Option {
+    return func(o *Order) {
+        o.address = addr
+    }
+}
+
+func WithPhone(phone string) Option {
+    return func(o *Order) {
+        o.phone = phone
+    }
+}
+
+// etc...
+```
+
+File: *main.go*
+
+```go
+package main
+
+import "github.com/you/repo/order"
+
+func main() {
+    fullOrder := order.NewOrder(
+        "uuid1",
+        "status1",
+        order.WithPrice(100)
+        order.WithAddress("Los Santos, Groove street"),
+        order.WithPhone("88005553535")
+    )
+    orderWithRequiredOnly := order.NewOrder(
+        "uuid1",
+        "status1",
+    )
+    orderWithPrice := order.NewOrder(
+        "uuid1",
+        "status1",
+        order.WithPrice(100),
+    )
+}
+```
+
+Look! Here the type has many fields and only one constructor
+that could be extended with functional options if we need
+and allows us to create objects with different sets of values.
+
+That way looks like ***overload*** in OOP languages like Java/C#/C++.
+
+### One type — one constructor
+
+According to functional options you may assume
+that it may be optimized with making several constructors
+for specific situations
+to create objects with pre-defined set of arguments.
+That is better than specifing a lof of arguments in the main constructor,
+but one day you may have so many situations that you won't able to maintain.
+
+**❌ Bad:**
+
+```go
+package order
+
+type Order struct {
+    uuid string
+    status string
+    userID string
+    address string
+    phone string
+    price int64
+    priority uint8
+}
+
+func NewOrder(
+    uuid string,
+    status string,
+) *Order {
+    return &Order{
+        uuid: uuid,
+        status: status,
+    }
+}
+
+func NewOrderWithPrice(
+    uuid string,
+    status string,
+    price int64,
+) *Order {
+    return &Order{
+        uuid: uuid,
+        status: status,
+        price: price,
+    }
+}
+
+func NewOrderWithAddress(
+    uuid string,
+    status string,
+    addr string,
+) *Order {
+    return &Order{
+        uuid: uuid,
+        status: status,
+        address: addr,
+    }
+}
+
+func NewOrderWithPriceAndAddress(
+    uuid string,
+    status string,
+    price int64,
+    addr string,
+) *Order {
+    return &Order{
+        uuid: uuid,
+        status: status,
+        price: price,
+        address: addr,
+    }
+}
+```
+
+**💀 Unacceptable:**
+
+File: *order.go*
+
+```go
+package order
+
+type Order struct {
+    uuid string
+    status string
+    userID string
+    address string
+    phone string
+    price int64
+    priority uint8
+}
+
+func NewOrder(
+    uuid string,
+    status string,
+    userID string,
+    address string,
+    phone string,
+    price int64,
+    priority uint8,
+) *Order {
+    return &Order{
+        uuid: uuid,
+        status: status,
+        userID: userID,
+        address: address,
+        phone: phone,
+        price: price,
+        priority: prioriry,
+    }
+}
+```
+
+**✅ Good:**
+
+File: *order.go*
+
+```go
+package order
+
+type Order struct {
+    uuid string
+    status string
+    userID string
+    address string
+    phone string
+    price int64
+    priority uint8
+}
+
+func NewOrder(
+    uuid string,
+    status string,
+    ...opts Option,
+) *Order {
+    o := &Order{
+        uuid: uuid,
+        status: status,
+    }
+    for _, opt range opts {
+        opt(o)
+    }
+    return o
+}
+```
+
+File: *order.go*
+
+```go
+package order
+
+type Option func(*Order)
+
+func WithPrice(p int64) Option {
+    return func(o *Order) {
+        o.price = p
+    }
+}
+
+
+func WithAddress(addr string) Option {
+    return func(o *Order) {
+        o.address = addr
+    }
+}
+
+func WithPhone(phone string) Option {
+    return func(o *Order) {
+        o.phone = phone
+    }
+}
+
+// etc...
+```
 
 ### No logic in constructors
 
-Constructors are meant to initialize and return instances of types and should not contain any logic or side effects.
-They should simply set up the struct with default values or provided parameters.
+Constructors are meant to initialize and return instances of types
+and should not contain any logic or side effects.
+They should simplify set up the struct with default values or provided parameters.
+
+Especially do not return error! Error handling is also logic that is prohibited.
+
+**❌ Bad:**
+
+```go
+func NewOrder(
+    uuid string,
+    status string,
+    price int64,
+) *Order {
+    o := &Order{
+        uuid: uuid,
+        status: status,
+        price: price,
+    }
+    if price < 0 {
+        o.price = 0
+    } 
+    if price == 0 && status == "" {
+        o.status = "new"
+    }
+    return o
+}
+```
+
+**💀 Unacceptable:**
+
+```go
+func NewOrder(
+    uuid string,
+    status string,
+    price int64,
+) (*Order, error) {
+    o := &Order{
+        uuid: uuid,
+        status: status,
+        price: price,
+    }
+    if price < 0 {
+        return nil, errors.New("empty price")
+    } 
+    if status == "" {
+        return nil, errors.New("empty status")
+    }
+    return o
+}
+```
+
+**✅ Good:**
+
+```go
+func NewOrder(
+    uuid string,
+    status string,
+    price int64,
+) *Order {
+    return &Order{
+        uuid: uuid,
+        status: status,
+        price: price,
+    }
+}
+```
+
+Constructor can accept and move values from the arguments into the fields.
+> 💡 This is what is precisely forms **encapsulation**
 
 ### Custom types
 
@@ -176,7 +572,8 @@ They should simply set up the struct with default values or provided parameters.
 
 > ⚠️ **Even unexported!**
 
-Every package, function, method, field and type must have a clear and concise comment explaining its purpose and usage.
+Every package, function, method, field and type must have a clear
+and concise comment explaining its purpose and usage.
 Use [GoDoc conventions](https://go.dev/doc/comment) for documentation.
 
 ### What the function does
@@ -761,6 +1158,13 @@ func TestParseConfig(t *testing.T) {
 That way you bring declarative style to describe the test cases
 and the code supposed to be more readable and understable.
 
+### Parallel tests
+
+Use `t.Parallel()` in all test cases where it could be used.
+But be careful to use it in the cases with asyncronious implementation
+because it may bring your test flacky so you may spend a lot of time to find out
+*yet another test you skip every second CI-job*
+
 ## No newlines in functions
 
 Avoid unnecessary newlines within function bodies to maintain readability and compactness.
@@ -803,5 +1207,5 @@ func (c Config) Validate() error {
 ```
 
 First time you may decide that this rule is too harsh and excessive.
-Please believe me! This way makes us to build very small functions and to simplify the code.
+Please believe me! That way makes us to build very small functions and simplify the code.
 Just try it and you will see the benefits soon!

@@ -12,15 +12,17 @@ git checkout -b feature/your-feature
 
 ## Process
 
-1. Open an issue if you propose a new feature or bugfix.
-2. Submit a pull request (PR) with a description of your changes.
+1. Open an issue if you propose a new feature or bugfix
+or just get one of the already existing ones
+2. Submit a pull request (PR) with a description of your changes
 
 ## Requirements
 
-- All structs fields must be unexported
-- All functions and methods must be exported
-- No newlines in functions
-- Use declarative style
+- Code with [style guide](STYLE.md)
+- Setup pre-hooks
+- Create branches only from issues
+- Create issues with template
+- Create pull request with template
 - 
 
 
