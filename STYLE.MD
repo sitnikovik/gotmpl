@@ -462,7 +462,7 @@ func NewOrder(
 }
 ```
 
-File: *order.go*
+File: *option.go*
 
 ```go
 package order
@@ -474,7 +474,6 @@ func WithPrice(p int64) Option {
         o.price = p
     }
 }
-
 
 func WithAddress(addr string) Option {
     return func(o *Order) {
@@ -565,6 +564,278 @@ Constructor can accept and move values from the arguments into the fields.
 > 💡 This is what is precisely forms **encapsulation**
 
 ### Custom types
+
+Use type defintion to create custom types covers your business logic.
+Especially when you denormalize your struct to optimize usage of your program.
+In that case you may impair the readability of the project.
+
+The main tip to catch that — you call fieilds with two words or more.
+
+**❌ Bad:**
+
+File: *order.go*
+
+```go
+package order
+
+type Order struct {
+    userID string
+    userPhone string
+    deliveryAddress string
+    status string
+    price uint64
+}
+
+func (o *Order) UserID() string {
+    return o.userID
+}
+
+func (o *Order) UserPhone() string {
+    return o.userPhone
+}
+
+func (o *Order) DeliveryAddress() string {
+    return o.deliveryAddress
+}
+
+func (o *Order) Status() string {
+    return o.status
+}
+
+func (o *Order) IsStatusNew() bool {
+    return o.status == "new"
+}
+
+func (o *Order) IsStatusDelivered() bool {
+    return o.status == "delivered"
+}
+
+func (o *Order) Price() uint64 {
+    return o.price
+}
+```
+
+**✅ Good:**
+
+File: *order/order.go*
+
+```go
+package order
+
+import (
+    "github.com/you/repo/money/price"
+    "github.com/you/repo/order/status"
+    "github.com/you/repo/user"
+)
+
+type Order struct {
+    delivery Delivery
+    user user.Identity
+    status status.Status
+    price price.Price
+}
+
+func NewOrder(s status.Status, opts ...Option) *Order {
+    o := &Order{
+        status := s
+    }
+    for _, opt range opts {
+        opt(o)
+    }
+    return o
+}
+
+func (o *Order) Delivery() Delivery {
+    return o.delivery
+}
+
+func (o *Order) User() user.Identity {
+    return o.delivery
+}
+
+func (o *Order) Status() status.Status {
+    return o.status
+}
+
+func (o *Order) Price() price.Price {
+    return o.price
+}
+```
+
+File: *order/delivery.go*
+
+```go
+package order
+
+import (
+    "github.com/you/repo/delivery"
+)
+
+type Delivery struct {
+    addr delivery.Address
+}
+
+func NewDelivery(addr deliveryAddress) Delivery {
+    return Delivery{
+        addr: addr
+    }
+}
+
+func (d Delivery) Address() delivery.Address {
+    return d.addr
+}
+```
+
+File: *order/option.go*
+
+```go
+package order
+
+import (
+    "github.com/you/repo/money/price"
+    "github.com/you/repo/delivery"
+    "github.com/you/repo/user"
+)
+type Option func (*Order)
+
+func WithDelivery(d Delivery) Option {
+    return func(o *Order) {
+        o.delivery = d
+    }
+}
+
+func WithUser(usr user.Identity) Option {
+    return func(o *Order) {
+        o.user = usr
+    }
+}
+
+func WithPrice(p price.Price) Option {
+    return func(o *Order) {
+        o.price = p
+    }
+}
+```
+
+File: *order/status/status.go*
+
+> 💡 That way allows as to change initial type easy
+
+```go
+package status
+
+type Status uint8
+
+const (
+    New = 0
+    Delivered = 1
+)
+
+func (s Status) IsNew() bool {
+    return s == New
+}
+
+func (s Status) IsInProgress() bool {
+    return s == InProgress
+}
+
+func (s Status) IsDelivered() bool {
+    return s == Delivered
+}
+```
+
+⚠️ To prevent creating unexpected `Status` we should omit constructor
+and provide usage only with constants.
+
+File: *user/identity.go*
+
+```go
+package user
+
+import "github.com/you/repo/contact"
+
+type Identity struct {
+    phone contact.Phone
+    id ID
+}
+
+func NewIdentity(id ID, opts ...IdentityOption) Identity {
+    i := Identity{
+        id: id,
+    }
+    for _, opt := range opts {
+        opt(i)
+    }
+    return i
+}
+
+func (i Identity) String() string {
+    // That's can be useful in some logs or debugging.
+    return i.id.String()
+}
+
+func (i Identity) Phone() contact.Phone {
+    return i.phone
+}
+
+func (i Identity) ID() ID {
+    return i.id
+}
+```
+
+File: *user/identity_option.go*
+
+```go
+package user
+
+import "github.com/you/repo/contact"
+
+type IdentityOption func (i *Identity)
+
+func (i Identity) WithPhone(p contact.Phone) IdentityOption {
+    return func(i *Identity) {
+        i.phone = p
+    }
+}
+```
+
+File: *user/id.go*
+
+```go
+package user
+
+type ID string
+
+func (i ID) String() string {
+    return string(i)
+}
+
+// Here you can add some code covers logic of the identifiers
+// for example checking if the id has new structure or
+// if the id created after a year required.
+```
+
+File: *contact/phone.go*
+
+```go
+package contact
+
+type Phone string
+
+func (p Phone) String() string {
+    return string(p)
+}
+
+// Here you can make logic for phones
+// for example, extracting country code or get its provider name.
+```
+
+You may say that the "Good" code is too bigger and complocated than "Bad". That's a mistake all developers do at least once.
+This way obligate you to think about the structure and maintanability
+in the start of developing so you can cover with tests each point of
+the main object or its secondary ones.
+And think about that each type is not totally depends of others
+so you can modify it quite easy.
 
 ### Funcs return only one value
 
