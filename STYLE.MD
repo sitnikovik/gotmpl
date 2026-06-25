@@ -1,5 +1,10 @@
 # Code Style Guide
 
+## Disclaimer
+
+ This is not a general Go style guide.
+ This is the code style policy for this repository and its derived template-based projects
+
 ## TLDR
 
 - [Declarative style](#declarative-style)
@@ -9,11 +14,14 @@
   - ✅ [Functional options](#functional-options)
   - ✅ [One type — one constructor](#one-type--one-constructor)
   - ✅ [No logic in constructors](#no-logic-in-constructors)
-  - 🔸 [Custom types](#custom-types)
-  - 🔸 [Funcs return only one value](#funcs-return-only-one-value)
-- [Document all](#document-all)
+  - ✅ [Custom types](#custom-types)
+- ✅ [Document all](#document-all)
   - ✅ [What the function does](#what-the-function-does)
-  - 🔸 [No comments]
+  - ✅ [What the field does](#what-the-field-does)
+  - ✅ [Sentence structure](#sentence-structure)
+  - ✅ [Multiple parameters / return values](#multiple-parameters--return-values)
+  - ✅ [Single parameter / return values](#single-parameter)
+  - ✅ [No arguments / return values](#no-arguments)
 - [Exporting](#exporting)
   - 🔸 [Functions must be exported](#functions-must-be-exported)
   - 🔸 [Any type must have a constructor](#any-type-must-have-a-constructor)
@@ -25,7 +33,7 @@
   - ✅ [Structs in tests](#structs-in-tests)
   - ✅ [Parallel tests](#parallel-tests)
 - ✅ [No newlines in functions](#no-newlines-in-functions)
-- 🔸 [No nil]
+- 🔸 [No nil](#no-nil)
 
 ## Declarative style
 
@@ -34,7 +42,8 @@ That means expressing the logic of computation without describing its control fl
 
 ### No setters
 
-> ⚠️ Setters are evil
+> [!IMPORTANT]
+> Setters are evil
 
 Avoid defining setter methods that simply assign values to struct fields.
 If you need to modify a field it seems that you wrong design of your struct.
@@ -76,7 +85,8 @@ import (
 func main() {
     ord := order.NewOrder(100)
     processOrder(ord)
-    fmt.Println("Order price after processing:", ord.GetPrice()) // Unexpectedly prints 200, but should be 100
+    // Unexpectedly prints 200, but should be 100
+    fmt.Println("Order price after processing:", ord.GetPrice())
 }
 
 func processOrder(o *order.Order) {
@@ -86,13 +96,17 @@ func processOrder(o *order.Order) {
 
 ### No getters
 
-> ⚠️ Getters are evil
+> [!IMPORTANT]
+> Getters are evil
 
 If you do not use setters - getters are useless.
-If you really need to get some data from the struct - just omit `Get` prefix in the method name. That is all!
+If you really need to get some data from the struct - just omit `Get` prefix
+in the method name. That is all!
 
-If the method returns, for example, the `price` field - just name it `Price()`. Why do you need `GetPrice()`?
-Does the `Price() int64` not returns the price? Why do you need `Get` prefix? Just avoid it.
+If the method returns, for example, the `price` field - just name it `Price()`.
+Why do you need `GetPrice()`?
+Does the `Price() int64` not returns the price?
+Why do you need `Get` prefix? Just avoid it.
 
 **Use:**
 
@@ -161,7 +175,8 @@ func processOrder(o *order.Order) {
 ```
 
 Look! No `Get` prefix! Just `Price()` method that returns the price.
-And we **do not have any setters**! The `price` field is immutable after the struct created!
+And we **do not have any setters**!
+The `price` field is immutable after the struct created!
 **We are sure that no one can change the price unexpectedly!**
 
 ### Immutability
@@ -830,18 +845,19 @@ func (p Phone) String() string {
 // for example, extracting country code or get its provider name.
 ```
 
-You may say that the "Good" code is too bigger and complocated than "Bad". That's a mistake all developers do at least once.
-This way obligate you to think about the structure and maintanability
+You may say that the "Good" code is too bigger
+and complicated than "Bad". That's a mistake all developers
+do once at least.
+This way obligate you to think about the structure and maintainability
 in the start of developing so you can cover with tests each point of
 the main object or its secondary ones.
 And think about that each type is not totally depends of others
 so you can modify it quite easy.
 
-### Funcs return only one value
-
 ## Document all
 
-> ⚠️ **Even unexported!**
+> [!IMPORTANT]
+> Even unexported! Even if the value is too obvious! Just document it!
 
 Every package, function, method, field and type must have a clear
 and concise comment explaining its purpose and usage.
@@ -850,19 +866,24 @@ Use [GoDoc conventions](https://go.dev/doc/comment) for documentation.
 ### What the function does
 
 Describe what the function does and not how it does it.
-The doc have to include a summary of the function's behavior, its inputs, outputs, and any side effects.
+The doc have to include a summary of the function's behavior,
+its inputs, outputs, and any side effects.
 
-#### Sentence structure
+### What the field stores
+
+Describe what the field stores and how it is used.
+
+### Sentence structure
 
 The first sentence should be a short summary that starts with the name of the function.
 **After a blank line**, provide more detailed information if necessary.
-The comment should be written in full sentences and be clear to someone unfamiliar with the code.
+The comment should be written in full sentences and be clear
+to someone unfamiliar with the code.
 
-#### Input / Output
+### Multiple parameters / return values
 
-#### Multiple parameters / return values
-
-If the function has more than one parameter or returns values, describe each of them clearly.
+If the function has more than one parameter or returns values,
+describe each of them clearly.
 Specify the type and purpose of each parameter and return value.
 
 ```go
@@ -884,7 +905,7 @@ func Tokenize(input string, delimiter string) ([]string, error)
 
 ![how it looks in VSCode](docs/style//img/godoc_02.png)
 
-#### Single parameter / return value
+### Single parameter / return value
 
 If the function has only one parameter and one return value,
 a brief description is sufficient but if necessary, you can still elaborate.
@@ -908,9 +929,10 @@ func ParseType(s string) Type
 
 ![how it looks in VSCode](docs/style/img/godoc_01.png)
 
-#### No arguments / return values
+### No arguments / return values
 
-If the function has no parameters or does not return any values, a simple description of its purpose is sufficient.
+If the function has no parameters or does not return any values,
+a simple description of its purpose is sufficient.
 
 **For example:**
 
@@ -918,6 +940,10 @@ If the function has no parameters or does not return any values, a simple descri
 // Initialize sets up the necessary configurations for the application.
 func Initialize()
 ```
+
+### No comments
+
+
 
 ## Exporting
 
