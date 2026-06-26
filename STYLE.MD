@@ -1,44 +1,56 @@
 # Code Style Guide
 
-## Disclaimer
-
- This is not a general Go style guide.
- This is the code style policy for this repository and its derived template-based projects
+> [!CAUTION]
+> This is not a general Go style guide.
+> This is the code style policy for this repository and its derived template-based projects
 
 ## TLDR
 
 - [Declarative style](#declarative-style)
-  - ✅ [No Setters](#no-setters)
-  - ✅ [No Getters](#no-getters)
-  - 🔸 [Immutability](#immutability)
-  - ✅ [Functional options](#functional-options)
-  - ✅ [One type — one constructor](#one-type--one-constructor)
-  - ✅ [No logic in constructors](#no-logic-in-constructors)
-  - ✅ [Custom types](#custom-types)
-- ✅ [Document all](#document-all)
-  - ✅ [What the function does](#what-the-function-does)
-  - ✅ [What the field does](#what-the-field-does)
-  - ✅ [Sentence structure](#sentence-structure)
-  - ✅ [Multiple parameters / return values](#multiple-parameters--return-values)
-  - ✅ [Single parameter / return values](#single-parameter)
-  - ✅ [No arguments / return values](#no-arguments)
+  - [Immutability](#immutability)
+  - [No Setters](#no-setters)
+  - [No Getters](#no-getters)
+  - [Functional options](#functional-options)
+  - [One type — one constructor](#one-type--one-constructor)
+  - [No logic in constructors](#no-logic-in-constructors)
+  - [Custom types](#custom-types)
+- [No newlines in functions](#no-newlines-in-functions)
+- [No nil](#no-nil)
+  - [Nullable](#nullable)
+  - [Pointer structs](#pointer-structs)
+  - [Errors can be nil](#errors-can-be-nil)
+- [Document all](#document-all)
+  - [What the function does](#what-the-function-does)
+  - [What the field stores](#what-the-field-stores)
+  - [Sentence structure](#sentence-structure)
+  - [Multiple parameters / return values](#multiple-parameters--return-values)
+  - [Single parameter / return values](#single-parameter--return-value)
+  - [No arguments / return values](#no-arguments--return-values)
 - [Exporting](#exporting)
-  - 🔸 [Functions must be exported](#functions-must-be-exported)
-  - 🔸 [Any type must have a constructor](#any-type-must-have-a-constructor)
-  - 🔸 [Types must be exported](#types-must-be-exported)
-  - 🔸 [Fields must be unexported](#fields-must-be-unexported)
+  - [Functions must be exported](#functions-must-be-exported)
+  - [Any type must have a constructor](#any-type-must-have-a-constructor)
+  - [Types must be exported](#types-must-be-exported)
+  - [Fields must be unexported](#fields-must-be-unexported)
 - [Test all](#test-all)
-  - ✅ [Testify](#testify)
-  - ✅ [Separate test packages](#separate-test-packages)
-  - ✅ [Structs in tests](#structs-in-tests)
-  - ✅ [Parallel tests](#parallel-tests)
-- ✅ [No newlines in functions](#no-newlines-in-functions)
-- 🔸 [No nil](#no-nil)
+  - [Testify](#testify)
+  - [Separate test packages](#separate-test-packages)
+  - [Structs in tests](#structs-in-tests)
+  - [Parallel tests](#parallel-tests)
 
 ## Declarative style
 
 Favor a declarative programming style over imperative.
 That means expressing the logic of computation without describing its control flow.
+
+### Immutability
+
+> [!TIP]
+> Immutability is the key to solve a lot of problems
+that could be made in the projects!
+
+The object cannot be changed after created!
+If you really need to do it then create the new one
+with the new value but specify it in a constructor.
 
 ### No setters
 
@@ -50,7 +62,7 @@ If you need to modify a field it seems that you wrong design of your struct.
 The most of the values **must be immutable** after the struct creation.
 Consider to create a new instance of the struct with the desired values instead.
 
-#### No setters: unexpected changes
+**❌ Bad**:
 
 ```go
 package order
@@ -94,6 +106,11 @@ func processOrder(o *order.Order) {
 }
 ```
 
+**✅ Good**:
+
+You cannot update values in the object.
+You must copy this object and change the values on its creation.s
+
 ### No getters
 
 > [!IMPORTANT]
@@ -108,7 +125,7 @@ Why do you need `GetPrice()`?
 Does the `Price() int64` not returns the price?
 Why do you need `Get` prefix? Just avoid it.
 
-**Use:**
+**✅ Good**:
 
 ```go
 package order
@@ -178,20 +195,6 @@ Look! No `Get` prefix! Just `Price()` method that returns the price.
 And we **do not have any setters**!
 The `price` field is immutable after the struct created!
 **We are sure that no one can change the price unexpectedly!**
-
-### Immutability
-
-> ⚡️ Immutability is the key to solve a lot of problems
-that coult be made in the projects!
-
-The object cannot be changed after created!
-If you really need to do it then create the new one
-with the new value but specify it in a constructor.
-
-But you may say that some values can be set after time
-or at the moment when the value is finally known or we got it.
-Of course, it is possible.
-But ask yourself at lease one of these:
 
 ### Functional options
 
@@ -854,6 +857,432 @@ the main object or its secondary ones.
 And think about that each type is not totally depends of others
 so you can modify it quite easy.
 
+## No newlines in functions
+
+Avoid unnecessary newlines within function bodies to maintain readability and compactness.
+
+**❌ Bad:**
+
+```go
+func (c Config) Validate() error {
+    if с.Empty() {
+        return nil
+    }
+
+    if с.usr == "" {
+        return errors.New("empty username")
+    }
+
+    if с.pwd == "" {
+        return errors.New("empty password")
+    }
+    
+    return nil
+}
+```
+
+**✅ Good:**
+
+```go
+func (c Config) Validate() error {
+    if с.Empty() {
+        return nil
+    }
+    if с.usr == "" {
+        return errors.New("empty username")
+    }
+    if с.pwd == "" {
+        return errors.New("empty password")
+    }
+    return nil
+}
+```
+
+First time you may decide that this rule is too harsh and excessive.
+Please believe me! That way makes us to build very small functions and simplify the code.
+Just try it and you will see the benefits soon!
+
+## No nil
+
+> [!TIP]
+> Just do not use `nil` and your code will become much more reliable!
+
+As you can know the `nil` is the same as `NULL` in Java, C++, or `None` in Python.
+And we **totally prohibit** this usage in our projects.
+
+### Nullable
+
+Long time ago `NULL` was created to display that value was not set in RDBMS and soon it arrived to the code.
+In that moment it seemed to be useful and friendly for developers
+but now it looks like a **bad manner**.
+
+Why you should use it?
+Why you need to know that the values was set?
+Can't you understand that the value was not set with empty value?
+What if a user set precisely empty value?
+You can say that you have to check that case.
+OK, but think about maintanance in your code...
+
+**❌ Bad:**
+
+```go
+package user
+
+type User struct {
+    name *string
+}
+
+func NewUser(name *string) *User {
+    return &User{
+        name: name
+    }
+}
+
+func (u *User) Name() *string {
+    return u.string
+}
+
+// ...
+```
+
+```go
+package main
+
+func main() {
+    // ...
+    u := NewUser("John Doe")
+    if name := u.Name(); name == "" { // will panic if the flag would be nil!
+        // ...
+    } else {
+        // ...
+    }
+    // ...
+}
+```
+
+Or how it will look like if we don't know whether the value is nil or not?
+
+```go
+package main
+
+func main() {
+    // ...
+    var name *string
+    if v != nil {
+        name = &string(v)
+    }
+    u := NewUser(name)
+    if nam := u.Name(); nam == "" { // will panic if the flag would be nil!
+        // ...
+    } else {
+        // ...
+    }
+    // ...
+}
+```
+
+You may say "just check for nil":
+
+```go
+package main
+
+func main() {
+    // ...
+    var name *string
+    if v != nil {
+        name = &string(v)
+    }
+    if name := u.Name(); name != nil && name == "" {
+        // ...
+    } else if name == "" {
+        // ...
+    } else {
+        // ...
+    }
+    // ...
+}
+```
+
+It would be if you decice to add check to the predicate like this:
+
+```go
+// ...
+func (u *User) Name() string {
+    if u.name == nil {
+        return string
+    }
+    return u.name
+}
+// ...
+```
+
+But any solving will look like a crunch in your code
+and at the same moment you lost the one "feature" of the `NULL`.
+So why you still use it?
+
+If your really need to check whether some value is really set by a user
+you should do like this:
+
+**✅ Good:**
+
+File: *strings/string.go*.
+
+```go
+package strings
+
+type String struct {
+    v string
+    ex bool
+}
+
+func NewString(v string, opts ...Option) String {
+    s := String{
+        v: v,
+    }
+    for _, opt := range opts {
+        opt(&s)
+    }
+    return s
+}
+
+func (s String) Value() string {
+    return s.v
+}
+
+func (s String) Empty() bool {
+    return s.v != ""
+}
+
+func (s String) Exists() bool {
+    return s.ex || s.v != ""
+}
+```
+
+File: *strings/option.go*.
+
+```go
+package strings
+
+type Option func(*String)
+
+func WithExists(exists bool) Option {
+    return func(s *String) {
+        s.ex = exists
+    }
+}
+```
+
+```go
+package main
+
+func main() {
+    // ...
+    usr := NewUser(
+        strings.NewString("John Doe"),
+    )
+    if nam := user.Name(); !nam.Exists() {
+        
+    } else if nam.Empty() {
+        
+    } else {
+
+    }
+    // ...    
+}
+// ...
+```
+
+What if we don't know whether the value is not empty? Then:
+
+```go
+package main
+
+func main() {
+    // ...
+    usr := NewUser(
+        strings.NewString(name),
+        strings.WithExists(name != ""),
+    )
+    if nam := user.Name(); !nam.Exists() {
+        // ...
+    } else if nam.Empty() {
+        // ...
+    } else {
+        // ...
+    }
+    // ...    
+}
+// ...
+```
+
+That way you delegate the logic to check for nil to `User`,
+so you can never check for it and get rid of nil-pointer errors.
+These errors look like childish mistakes that develovers just forgot to handle.
+
+### Pointer structs
+
+> [!TIP]
+> Prevent and catch all nil-usage except of errors
+
+If we store structs with a pointer and do not use declarative style,
+we are guaranteed to meet panics with nil-pointer error.
+
+Do not check objects and values for nil like that:
+
+**❌ Bad:**
+
+File: **order/order.go**
+
+```go
+package order
+
+type Order struct {
+    User *User
+}
+
+func (o *Order) GetUserName() string {
+    return o.User.Name
+}
+```
+
+File: **order/user.go**
+
+```go
+package order
+
+type User struct {
+    Name string
+}
+```
+
+File: **main.go**
+
+```go
+package main
+
+func main() {
+    // ...
+    o := new(order.Order)
+    if usr != nil {
+        o.User = usr
+    }
+    // ...
+    fmt.Println(o.User.Name) // will panic because o.User is nil
+}
+// ...
+```
+
+If we apply declarative style it will look like this:
+
+**✅ Good:**
+
+File: **order/order.go**
+
+```go
+package order
+
+type Order struct {
+    user *User
+}
+
+func NewOrder(usr *User) *Order {
+    return &Order{
+        user: usr,
+    }
+}
+
+func (o *Order) User() *User {
+    return o.User.Name
+}
+```
+
+File: **order/user.go**
+
+```go
+package order
+
+type User struct {
+    name string
+}
+
+func NewUser(name string) *User {
+    return &User{
+        name: name,
+    }
+}
+
+func (u *User) Name() {
+    return u.name
+}
+```
+
+File: **main.go**
+
+```go
+package main
+
+func main() {
+    // ...
+    o := order.NewOrder(usr)
+    // ...
+    fmt.Println(o.User().Name())
+}
+// ...
+```
+
+And you may say that if user is still nil it will panic.
+Yes, it does. But this code is not able to fix all problems with nil.
+
+> [!IMPORTANT]
+> Pointer it is precisely a pointer and you should not store nil in the struct fields
+
+Also consider usage without pointers.
+
+### Errors can be nil
+
+The one thing you can to check for `!= nil` is error.
+But after you have read the upper paragraphs
+you may think that we have to check errors something like that:
+
+```go
+package main
+
+func main() {
+    // ...
+    value := cache.Get(ctx, "key")
+    if value.Errored() {
+        log.Fatalf("failed to get value from cache: %w", err.Err())
+    }
+    // handle the value...    
+}
+```
+
+And I was a fan of this style.
+But one day I recognized that when get these values wrapps error inside itself — **it obligates you to know that this staff may be errored**.
+And that is not good.
+
+The best way you can do to check for errors is checking for nil.
+Compare the code with this:
+
+```go
+package main
+
+func main() {
+    // ...
+    value, err := cache.Get(ctx, "key")
+    if err != nil {
+        log.Fatalf("failed to get value from cache: %w", err.Err())
+    }
+    // handle the value...    
+}
+```
+
+This way obligates you to handle error
+and many linters will alert you about that.
+
+Maybe the first example is truly object oriented style
+but it is not idiomatic in Go and the handling becomes not maintainable.
+
 ## Document all
 
 > [!IMPORTANT]
@@ -942,8 +1371,6 @@ func Initialize()
 ```
 
 ### No comments
-
-
 
 ## Exporting
 
@@ -1461,48 +1888,3 @@ Use `t.Parallel()` in all test cases where it could be used.
 But be careful to use it in the cases with asyncronious implementation
 because it may bring your test flacky so you may spend a lot of time to find out
 *yet another test you skip every second CI-job*
-
-## No newlines in functions
-
-Avoid unnecessary newlines within function bodies to maintain readability and compactness.
-
-**❌ Bad:**
-
-```go
-func (c Config) Validate() error {
-    if с.Empty() {
-        return nil
-    }
-
-    if с.usr == "" {
-        return errors.New("empty username")
-    }
-
-    if с.pwd == "" {
-        return errors.New("empty password")
-    }
-    
-    return nil
-}
-```
-
-**✅ Good:**
-
-```go
-func (c Config) Validate() error {
-    if с.Empty() {
-        return nil
-    }
-    if с.usr == "" {
-        return errors.New("empty username")
-    }
-    if с.pwd == "" {
-        return errors.New("empty password")
-    }
-    return nil
-}
-```
-
-First time you may decide that this rule is too harsh and excessive.
-Please believe me! That way makes us to build very small functions and simplify the code.
-Just try it and you will see the benefits soon!
