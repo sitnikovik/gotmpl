@@ -109,7 +109,7 @@ func processOrder(o *order.Order) {
 **✅ Good**:
 
 You cannot update values in the object.
-You must copy this object and change the values on its creation.s
+You must copy this object and change the values on its creation.
 
 ### No getters
 
@@ -148,7 +148,7 @@ func NewOrder(
     }
 }
 
-func (*Order) UUID() string {
+func (o *Order) UUID() string {
     return o.uuid
 }
 
@@ -172,14 +172,14 @@ import (
 func main() {
     ord1 := order.NewOrder("uuid1", "status1", 100)
     ord2 := order.NewOrder("uuid2", "status2", 200)
-    fmt.Println(
-        "Order 1: %s, %s, %s:",
+    fmt.Printf(
+        "Order 1: %s, %s, %d\n",
         ord1.UUID(),
         ord1.Status(),
         ord1.Price(),
     ) // Prints uuid1, status1, 100
-    fmt.Println(
-        "Order 2: %s, %s, %s:",
+    fmt.Printf(
+        "Order 2: %s, %s, %d\n",
         ord2.UUID(),
         ord2.Status(),
         ord2.Price(),
@@ -236,7 +236,7 @@ func NewOrder(
         address: address,
         phone: phone,
         price: price,
-        priority: prioriry,
+        priority: priority,
     }
 }
 ```
@@ -261,13 +261,13 @@ type Order struct {
 func NewOrder(
     uuid string,
     status string,
-    ...opts Option,
+    opts ...Option,
 ) *Order {
     o := &Order{
         uuid: uuid,
         status: status,
     }
-    for _, opt range opts {
+    for _, opt := range opts {
         opt(o)
     }
     return o
@@ -314,9 +314,9 @@ func main() {
     fullOrder := order.NewOrder(
         "uuid1",
         "status1",
-        order.WithPrice(100)
+        order.WithPrice(100),
         order.WithAddress("Los Santos, Groove street"),
-        order.WithPhone("88005553535")
+        order.WithPhone("88005553535"),
     )
     orderWithRequiredOnly := order.NewOrder(
         "uuid1",
@@ -327,6 +327,7 @@ func main() {
         "status1",
         order.WithPrice(100),
     )
+    _, _, _ = fullOrder, orderWithRequiredOnly, orderWithPrice
 }
 ```
 
@@ -442,7 +443,7 @@ func NewOrder(
         address: address,
         phone: phone,
         price: price,
-        priority: prioriry,
+        priority: priority,
     }
 }
 ```
@@ -467,13 +468,13 @@ type Order struct {
 func NewOrder(
     uuid string,
     status string,
-    ...opts Option,
+    opts ...Option,
 ) *Order {
     o := &Order{
         uuid: uuid,
         status: status,
     }
-    for _, opt range opts {
+    for _, opt := range opts {
         opt(o)
     }
     return o
@@ -519,6 +520,14 @@ Especially do not return error! Error handling is also logic that is prohibited.
 **❌ Bad:**
 
 ```go
+package order
+
+type Order struct {
+    uuid string
+    status string
+    price int64
+}
+
 func NewOrder(
     uuid string,
     status string,
@@ -542,6 +551,16 @@ func NewOrder(
 **💀 Unacceptable:**
 
 ```go
+package order
+
+import "errors"
+
+type Order struct {
+    uuid string
+    status string
+    price int64
+}
+
 func NewOrder(
     uuid string,
     status string,
@@ -565,6 +584,14 @@ func NewOrder(
 **✅ Good:**
 
 ```go
+package order
+
+type Order struct {
+    uuid string
+    status string
+    price int64
+}
+
 func NewOrder(
     uuid string,
     status string,
@@ -655,9 +682,9 @@ type Order struct {
 
 func NewOrder(s status.Status, opts ...Option) *Order {
     o := &Order{
-        status := s
+        status: s,
     }
-    for _, opt range opts {
+    for _, opt := range opts {
         opt(o)
     }
     return o
@@ -668,7 +695,7 @@ func (o *Order) Delivery() Delivery {
 }
 
 func (o *Order) User() user.Identity {
-    return o.delivery
+    return o.user
 }
 
 func (o *Order) Status() status.Status {
@@ -693,9 +720,9 @@ type Delivery struct {
     addr delivery.Address
 }
 
-func NewDelivery(addr deliveryAddress) Delivery {
+func NewDelivery(addr delivery.Address) Delivery {
     return Delivery{
-        addr: addr
+        addr: addr,
     }
 }
 
@@ -711,10 +738,9 @@ package order
 
 import (
     "github.com/you/repo/money/price"
-    "github.com/you/repo/delivery"
     "github.com/you/repo/user"
 )
-type Option func (*Order)
+type Option func(*Order)
 
 func WithDelivery(d Delivery) Option {
     return func(o *Order) {
@@ -746,7 +772,8 @@ type Status uint8
 
 const (
     New = 0
-    Delivered = 1
+    InProgress = 1
+    Delivered = 2
 )
 
 func (s Status) IsNew() bool {
@@ -782,7 +809,7 @@ func NewIdentity(id ID, opts ...IdentityOption) Identity {
         id: id,
     }
     for _, opt := range opts {
-        opt(i)
+        opt(&i)
     }
     return i
 }
@@ -808,9 +835,9 @@ package user
 
 import "github.com/you/repo/contact"
 
-type IdentityOption func (i *Identity)
+type IdentityOption func(i *Identity)
 
-func (i Identity) WithPhone(p contact.Phone) IdentityOption {
+func WithPhone(p contact.Phone) IdentityOption {
     return func(i *Identity) {
         i.phone = p
     }
@@ -864,16 +891,29 @@ Avoid unnecessary newlines within function bodies to maintain readability and co
 **❌ Bad:**
 
 ```go
+package config
+
+import "errors"
+
+type Config struct {
+    usr string
+    pwd string
+}
+
+func (c Config) Empty() bool {
+    return c.usr == "" && c.pwd == ""
+}
+
 func (c Config) Validate() error {
-    if с.Empty() {
+    if c.Empty() {
         return nil
     }
 
-    if с.usr == "" {
+    if c.usr == "" {
         return errors.New("empty username")
     }
 
-    if с.pwd == "" {
+    if c.pwd == "" {
         return errors.New("empty password")
     }
     
@@ -884,14 +924,27 @@ func (c Config) Validate() error {
 **✅ Good:**
 
 ```go
+package config
+
+import "errors"
+
+type Config struct {
+    usr string
+    pwd string
+}
+
+func (c Config) Empty() bool {
+    return c.usr == "" && c.pwd == ""
+}
+
 func (c Config) Validate() error {
-    if с.Empty() {
+    if c.Empty() {
         return nil
     }
-    if с.usr == "" {
+    if c.usr == "" {
         return errors.New("empty username")
     }
-    if с.pwd == "" {
+    if c.pwd == "" {
         return errors.New("empty password")
     }
     return nil
@@ -934,12 +987,12 @@ type User struct {
 
 func NewUser(name *string) *User {
     return &User{
-        name: name
+        name: name,
     }
 }
 
 func (u *User) Name() *string {
-    return u.string
+    return u.name
 }
 
 // ...
@@ -1006,6 +1059,8 @@ func main() {
 It would be if you decice to add check to the predicate like this:
 
 ```go
+package user
+
 // ...
 func (u *User) Name() string {
     if u.name == nil {
@@ -1160,6 +1215,12 @@ File: **main.go**
 ```go
 package main
 
+import (
+    "fmt"
+
+    "github.com/you/repo/order"
+)
+
 func main() {
     // ...
     o := new(order.Order)
@@ -1192,7 +1253,7 @@ func NewOrder(usr *User) *Order {
 }
 
 func (o *Order) User() *User {
-    return o.User.Name
+    return o.user
 }
 ```
 
@@ -1211,7 +1272,7 @@ func NewUser(name string) *User {
     }
 }
 
-func (u *User) Name() {
+func (u *User) Name() string {
     return u.name
 }
 ```
@@ -1221,8 +1282,15 @@ File: **main.go**
 ```go
 package main
 
+import (
+    "fmt"
+
+    "github.com/you/repo/order"
+)
+
 func main() {
     // ...
+    usr := order.NewUser("John Doe")
     o := order.NewOrder(usr)
     // ...
     fmt.Println(o.User().Name())
@@ -1251,7 +1319,7 @@ func main() {
     // ...
     value := cache.Get(ctx, "key")
     if value.Errored() {
-        log.Fatalf("failed to get value from cache: %w", err.Err())
+        log.Fatalf("failed to get value from cache: %v", value.Err())
     }
     // handle the value...    
 }
@@ -1271,7 +1339,7 @@ func main() {
     // ...
     value, err := cache.Get(ctx, "key")
     if err != nil {
-        log.Fatalf("failed to get value from cache: %w", err.Err())
+        log.Fatalf("failed to get value from cache: %v", err)
     }
     // handle the value...    
 }
@@ -1316,6 +1384,8 @@ describe each of them clearly.
 Specify the type and purpose of each parameter and return value.
 
 ```go
+package parser
+
 // Tokenize splits the input string into a slice of substrings based on the specified delimiter.
 //
 // It returns a slice of substrings and an error if the operation fails.
@@ -1327,7 +1397,9 @@ Specify the type and purpose of each parameter and return value.
 // Example:
 //
 //  Tokenize("a,b,c", ",") // returns []string{"a", "b", "c"}, nil
-func Tokenize(input string, delimiter string) ([]string, error)
+func Tokenize(input string, delimiter string) ([]string, error) {
+    // ...
+}
 ```
 
 **How it looks in VSCode:**
@@ -1342,6 +1414,10 @@ a brief description is sufficient but if necessary, you can still elaborate.
 **For example:**
 
 ```go
+package parser
+
+type Type string
+
 // ParseType parses the type from a commit subject string.
 //
 // The expected format has the type at the beginning of the subject,
@@ -1351,7 +1427,9 @@ a brief description is sufficient but if necessary, you can still elaborate.
 //
 //  "feat(ui): add new button" // type is "feat"
 //  "fix: resolve issue" // type is "fix"
-func ParseType(s string) Type
+func ParseType(s string) Type {
+    // ...
+}
 ```
 
 **How it looks in VSCode:**
@@ -1366,8 +1444,12 @@ a simple description of its purpose is sufficient.
 **For example:**
 
 ```go
+package bootstrap
+
 // Initialize sets up the necessary configurations for the application.
-func Initialize()
+func Initialize() {
+    // ...
+}
 ```
 
 ### No comments
@@ -1387,7 +1469,28 @@ We do not allow any unexported functions in the codebase!
 **❌ Bad:**
 
 ```go
+package file
 
+import "os"
+
+func read(path string) ([]byte, error) {
+    return os.ReadFile(path)
+}
+```
+
+**✅ Good:**
+
+```go
+package file
+
+import "os"
+
+// read reads file by provided path and returns
+// the slice of bytes read from the file
+// or returns error if something went wrong.
+func read(path string) ([]byte, error) {
+    return os.ReadFile(path)
+}
 ```
 
 #### Functions must be exported: config example
@@ -1397,17 +1500,30 @@ We do not allow any unexported functions in the codebase!
 ```go
 package main
 
+import (
+    "log"
+
+    "your_module/file"
+)
+
 func main() {
     cfg, err := file.ReadConfig("config.json")
     if err != nil {
         log.Fatal(err)
     }
-    // Use cfg...
+    // ...
 }
 ```
 
 ```go
 package file
+
+import (
+    "encoding/json"
+    "os"
+)
+
+type Config struct{}
 
 // ReadConfig reads and parses a config file.
 func ReadConfig(path string) (*Config, error) {
@@ -1444,12 +1560,19 @@ func main() {
     if err != nil {
         log.Fatal(err)
     }
-    // Use cfg...
+    // ...
 }
 ```
 
 ```go
 package file
+
+import (
+    "encoding/json"
+    "os"
+)
+
+type Config struct{}
 
 // ReadConfig reads and parses a config file.
 func ReadConfig(path string) (*Config, error) {
@@ -1493,12 +1616,14 @@ func main() {
     if err != nil {
         log.Fatal(err)
     }
-    // Use cfg...
+    // ...
 }
 ```
 
 ```go
 package file
+
+import "os"
 
 // Read reads a file and returns its contents.
 func Read(path string) ([]byte, error) {
@@ -1508,6 +1633,10 @@ func Read(path string) ([]byte, error) {
 
 ```go
 package config
+
+import "encoding/json"
+
+type Config struct{}
 
 func ParseConfig(data []byte) (*Config, error) {
     var cfg Config
@@ -1547,7 +1676,7 @@ Use Go's testing package to write unit tests that cover various scenarios and ed
 Use [testify package](https://github.com/stretchr/testify)
 to make **asserts** in your tests.
 
-> ❌ Never use `t.Error()` because it definetely damages the reading!
+> ❌ Never use `t.Error()` because it definitely damages the reading!
 
 **❌ Bad:**
 
@@ -1583,11 +1712,7 @@ func TestName_String(t *testing.T) {
 ```go
 package file
 
-import (
-    "testing"
-
-    "github.com/stretchr/testify/assert"
-)
+import "testing"
 
 func TestName_String(t *testing.T) {
     tests := []struct {
@@ -1600,10 +1725,10 @@ func TestName_String(t *testing.T) {
     for _, tt := range tests {
         t.Run(tt.name, func(t *testing.T) {
             assert.Equal(
-                t, 
+                t,
                 tt.want,
-                tt.n.String()
-            ) 
+                tt.n.String(),
+            )
         })
     }
 }
@@ -1643,7 +1768,7 @@ func TestName_String(t *testing.T) {
                 value: "example.txt", // With unexported fields!
             },
             // ...
-        }
+        },
     }
     for _, tt := range tests {
         t.Run(tt.name, func(t *testing.T) {
@@ -1673,9 +1798,9 @@ func TestName_String(t *testing.T) {
     }{
         {
             name: "some case",
-            n: NewName("example.txt"), // Obligates to use the constructor
+            n: file.NewName("example.txt"), // Obligates to use the constructor
             // ...
-        }
+        },
     }
     for _, tt := range tests {
         t.Run(tt.name, func(t *testing.T) {
@@ -1699,7 +1824,11 @@ It improves declaration and understafing by reading of your test cases.
 ```go
 package config
 
-import "testing"
+import (
+    "testing"
+
+    "github.com/stretchr/testify/assert"
+)
 
 func TestParseConfig(t *testing.T) {
     tests := []struct {
@@ -1753,10 +1882,11 @@ import (
     "testing"
 
     impl "github.com/you/repo/config"
+    "github.com/stretchr/testify/assert"
 )
 
 func TestParseConfig(t *testing.T) {
-    type args struct{
+    type args struct {
         fname string
     }
     type want struct {
@@ -1772,23 +1902,21 @@ func TestParseConfig(t *testing.T) {
             name: "ok",
             args: args{
                 fname: "path/to/file",
-            }
+            },
             want: want{
-                config:  impl.NewConfig(
-                    // ...
-                ),
+                config:  impl.NewConfig(),
                 errored: false,
-            }
+            },
         },
         {
             name: "failed to parse",
             args: args{
                 fname: "path/to/file",
-            }
+            },
             want: want{
-                config:  impl.Config{},
+                config:  impl.NewConfig(),
                 errored: true,
-            }
+            },
         },
     }
     for _, tt := range tests {
@@ -1823,10 +1951,11 @@ import (
     "testing"
 
     impl "github.com/you/repo/config"
+    "github.com/stretchr/testify/assert"
 )
 
 func TestParseConfig(t *testing.T) {
-    type args struct{
+    type args struct {
         fname string
     }
     type want struct {
@@ -1842,23 +1971,21 @@ func TestParseConfig(t *testing.T) {
             name: "ok",
             args: args{
                 fname: "path/to/file",
-            }
+            },
             want: want{
-                config: impl.NewConfig(
-                    // ...
-                ),
+                config: impl.NewConfig(),
                 err:    nil,
-            }
+            },
         },
         {
             name: "failed to parse",
             args: args{
                 fname: "path/to/file",
-            }
+            },
             want: want{
-                config:  impl.Config{},
-                errored: impl.ErrNotFound,
-            }
+                config: impl.NewConfig(),
+                err:    impl.ErrNotFound,
+            },
         },
     }
     for _, tt := range tests {
