@@ -1863,7 +1863,6 @@ func Read(path string) ([]byte, error) {
 }
 ```
 
-#### Functions must be exported: config example
 
 **❌ Bad:**
 
@@ -2423,6 +2422,11 @@ It improves declaration and understafing by reading of your test cases.
 **🤔 Why**:
 
 Dedicated `args` and `want` structs make test data more declarative and scale better than long anonymous field lists.
+
+**📝 Exceptions / Notes**:
+
+The [Canonical test template](#canonical-test-template) above is the minimal default.
+The examples below are intentionally larger because they compare several ways to structure the same test.
 
 **❌ Bad:**
 
