@@ -57,12 +57,22 @@ with the new value but specify it in a constructor.
 > [!IMPORTANT]
 > Setters are evil
 
-Avoid defining setter methods that simply assign values to struct fields.
-If you need to modify a field it seems that you wrong design of your struct.
-The most of the values **must be immutable** after the struct creation.
-Consider to create a new instance of the struct with the desired values instead.
+**📌 Rule**:
+
+Do not define setter methods that only assign values to struct fields.
+The values of a struct should usually be fixed at creation time.
+If you need a different value, create a new instance instead of mutating the existing one.
+
+**🤔 Why**:
+
+Setters make it possible to change the object from any place that has access to it.
+That weakens encapsulation and makes the state of the value harder to predict.
+The more mutable your structs are, the easier it is to introduce unexpected side effects.
 
 **❌ Bad**:
+
+The example below allows any caller to change the price after the order was created.
+That means the original state of the object is no longer stable.
 
 ```go
 package order
@@ -108,8 +118,55 @@ func processOrder(o *order.Order) {
 
 **✅ Good**:
 
-You cannot update values in the object.
-You must copy this object and change the values on its creation.
+The example below keeps the price immutable after construction.
+If another price is needed, create another order value instead of mutating the existing one.
+
+```go
+package order
+
+type Order struct {
+    price int64
+}
+
+func NewOrder(price int64) *Order {
+    return &Order{
+        price: price,
+    }
+}
+
+func (o *Order) Price() int64 {
+    return o.price
+}
+```
+
+```go
+package main
+
+import (
+    "fmt"
+    "your_module/order"
+)
+
+func main() {
+    original := order.NewOrder(100)
+    corrected := order.NewOrder(200)
+
+    fmt.Println(original.Price())  // 100
+    fmt.Println(corrected.Price()) // 200
+}
+```
+
+**📝 Exceptions / Notes**:
+
+This rule is a strong default, not a ban on every internal state change in every possible design.
+But if you feel the need to add a setter, first assume that the struct design is wrong and revisit the API.
+
+**🔗 Related rules**:
+
+- [Immutability](#immutability)
+- [No getters](#no-getters)
+- [Functional options](#functional-options)
+- [No logic in constructors](#no-logic-in-constructors)
 
 ### No getters
 
