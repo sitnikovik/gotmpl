@@ -39,8 +39,15 @@
 
 ## Declarative style
 
+**📌 Rule**:
+
 Favor a declarative programming style over imperative.
 That means expressing the logic of computation without describing its control flow.
+
+**🤔 Why**:
+
+The document treats API design and data modeling as the primary tools for keeping code simple.
+Declarative code tends to make invariants explicit and reduces the amount of stateful orchestration spread through the codebase.
 
 ### Immutability
 
@@ -48,9 +55,22 @@ That means expressing the logic of computation without describing its control fl
 > Immutability is the key to solve a lot of problems
 that could be made in the projects!
 
+**📌 Rule**:
+
 The object cannot be changed after created!
 If you really need to do it then create the new one
 with the new value but specify it in a constructor.
+
+**🤔 Why**:
+
+Immutable objects are easier to reason about because their state does not change unexpectedly.
+That reduces hidden side effects and makes the behavior of the code more predictable.
+
+**🔗 Related rules**:
+
+- [No setters](#no-setters)
+- [Functional options](#functional-options)
+- [No logic in constructors](#no-logic-in-constructors)
 
 ### No setters
 
@@ -173,9 +193,13 @@ But if you feel the need to add a setter, first assume that the struct design is
 > [!IMPORTANT]
 > Getters are evil
 
+**📌 Rule**:
+
 If you do not use setters - getters are useless.
 If you really need to get some data from the struct - just omit `Get` prefix
 in the method name. That is all!
+
+**🤔 Why**:
 
 If the method returns, for example, the `price` field - just name it `Price()`.
 Why do you need `GetPrice()`?
@@ -253,12 +277,25 @@ And we **do not have any setters**!
 The `price` field is immutable after the struct created!
 **We are sure that no one can change the price unexpectedly!**
 
+**🔗 Related rules**:
+
+- [No setters](#no-setters)
+- [Immutability](#immutability)
+- [Fields must be unexported](#fields-must-be-unexported)
+
 ### Functional options
 
 > 💡 All the values could be set in a constructor
 
+**📌 Rule**:
+
 All! Remember that! Even there are a lot of fields in the struct,
 they still could be specified in a constructor via **functional options**.
+
+**🤔 Why**:
+
+Functional options let the type keep one constructor while still supporting optional fields.
+That keeps the API extensible without exploding the number of parameters or constructors.
 
 **❌ Bad:**
 
@@ -394,12 +431,23 @@ and allows us to create objects with different sets of values.
 
 That way looks like ***overload*** in OOP languages like Java/C#/C++.
 
+**🔗 Related rules**:
+
+- [One type — one constructor](#one-type--one-constructor)
+- [No logic in constructors](#no-logic-in-constructors)
+- [No setters](#no-setters)
+
 ### One type — one constructor
+
+**📌 Rule**:
 
 According to functional options you may assume
 that it may be optimized with making several constructors
 for specific situations
 to create objects with pre-defined set of arguments.
+
+**🤔 Why**:
+
 That is better than specifing a lof of arguments in the main constructor,
 but one day you may have so many situations that you won't able to maintain.
 
@@ -566,11 +614,21 @@ func WithPhone(phone string) Option {
 // etc...
 ```
 
+**🔗 Related rules**:
+
+- [Functional options](#functional-options)
+- [No logic in constructors](#no-logic-in-constructors)
+- [Any type must have a constructor](#any-type-must-have-a-constructor)
+
 ### No logic in constructors
+
+**📌 Rule**:
 
 Constructors are meant to initialize and return instances of types
 and should not contain any logic or side effects.
 They should simplify set up the struct with default values or provided parameters.
+
+**🤔 Why**:
 
 Especially do not return error! Error handling is also logic that is prohibited.
 
@@ -665,11 +723,21 @@ func NewOrder(
 Constructor can accept and move values from the arguments into the fields.
 > 💡 This is what is precisely forms **encapsulation**
 
+**🔗 Related rules**:
+
+- [Immutability](#immutability)
+- [Functional options](#functional-options)
+- [One type — one constructor](#one-type--one-constructor)
+
 ### Custom types
+
+**📌 Rule**:
 
 Use type defintion to create custom types covers your business logic.
 Especially when you denormalize your struct to optimize usage of your program.
 In that case you may impair the readability of the project.
+
+**🤔 Why**:
 
 The main tip to catch that — you call fieilds with two words or more.
 
@@ -941,9 +1009,22 @@ the main object or its secondary ones.
 And think about that each type is not totally depends of others
 so you can modify it quite easy.
 
+**🔗 Related rules**:
+
+- [No getters](#no-getters)
+- [Types must be exported](#types-must-be-exported)
+- [Fields must be unexported](#fields-must-be-unexported)
+
 ## No newlines in functions
 
+**📌 Rule**:
+
 Avoid unnecessary newlines within function bodies to maintain readability and compactness.
+
+**🤔 Why**:
+
+This rule pushes you toward smaller functions with denser, easier-to-scan control flow.
+If a function becomes hard to read without visual spacing, it is often a sign that the function should be smaller.
 
 **❌ Bad:**
 
@@ -1017,14 +1098,25 @@ Just try it and you will see the benefits soon!
 > [!TIP]
 > Just do not use `nil` and your code will become much more reliable!
 
+**📌 Rule**:
+
 As you can know the `nil` is the same as `NULL` in Java, C++, or `None` in Python.
 And we **totally prohibit** this usage in our projects.
 
+**🤔 Why**:
+
+`nil` pushes uncertainty into every consumer of a value.
+This section explains how to model optionality and pointer-based APIs without normalizing `nil` checks across the whole codebase.
+
 ### Nullable
+
+**📌 Rule**:
 
 Long time ago `NULL` was created to display that value was not set in RDBMS and soon it arrived to the code.
 In that moment it seemed to be useful and friendly for developers
 but now it looks like a **bad manner**.
+
+**🤔 Why**:
 
 Why you should use it?
 Why you need to know that the values was set?
@@ -1231,15 +1323,28 @@ That way you delegate the logic to check for nil to `User`,
 so you can never check for it and get rid of nil-pointer errors.
 These errors look like childish mistakes that develovers just forgot to handle.
 
+**🔗 Related rules**:
+
+- [Pointer structs](#pointer-structs)
+- [Errors can be nil](#errors-can-be-nil)
+- [Custom types](#custom-types)
+
 ### Pointer structs
 
 > [!TIP]
 > Prevent and catch all nil-usage except of errors
 
+**📌 Rule**:
+
 If we store structs with a pointer and do not use declarative style,
 we are guaranteed to meet panics with nil-pointer error.
 
 Do not check objects and values for nil like that:
+
+**🤔 Why**:
+
+When a struct field may silently remain `nil`, every consumer has to defensively remember that fact.
+That spreads uncertainty through the whole API and makes panics much easier to introduce.
 
 **❌ Bad:**
 
@@ -1363,11 +1468,26 @@ Yes, it does. But this code is not able to fix all problems with nil.
 
 Also consider usage without pointers.
 
+**🔗 Related rules**:
+
+- [Nullable](#nullable)
+- [No setters](#no-setters)
+- [Fields must be unexported](#fields-must-be-unexported)
+
 ### Errors can be nil
+
+**📌 Rule**:
 
 The one thing you can to check for `!= nil` is error.
 But after you have read the upper paragraphs
 you may think that we have to check errors something like that:
+
+**🤔 Why**:
+
+Errors are the idiomatic Go exception to the “no nil” rule.
+Returning `err` explicitly keeps failure handling visible to the caller and aligned with Go tooling and conventions.
+
+**❌ Bad**:
 
 ```go
 package main
@@ -1381,6 +1501,8 @@ func main() {
     // handle the value...    
 }
 ```
+
+**✅ Good**:
 
 And I was a fan of this style.
 But one day I recognized that when get these values wrapps error inside itself — **it obligates you to know that this staff may be errored**.
@@ -1408,16 +1530,30 @@ and many linters will alert you about that.
 Maybe the first example is truly object oriented style
 but it is not idiomatic in Go and the handling becomes not maintainable.
 
+**🔗 Related rules**:
+
+- [Nullable](#nullable)
+- [No logic in constructors](#no-logic-in-constructors)
+
 ## Document all
 
 > [!IMPORTANT]
 > Even unexported! Even if the value is too obvious! Just document it!
 
+**📌 Rule**:
+
 Every package, function, method, field and type must have a clear
 and concise comment explaining its purpose and usage.
 Use [GoDoc conventions](https://go.dev/doc/comment) for documentation.
 
+**🤔 Why**:
+
+Documentation is part of the public contract of the code.
+If a new contributor cannot understand what a symbol is for from its comment, the API is harder to use correctly.
+
 ### What the function does
+
+**📌 Rule**:
 
 Describe what the function does and not how it does it.
 The doc have to include a summary of the function's behavior,
@@ -1425,9 +1561,13 @@ its inputs, outputs, and any side effects.
 
 ### What the field stores
 
+**📌 Rule**:
+
 Describe what the field stores and how it is used.
 
 ### Sentence structure
+
+**📌 Rule**:
 
 The first sentence should be a short summary that starts with the name of the function.
 **After a blank line**, provide more detailed information if necessary.
@@ -1436,9 +1576,13 @@ to someone unfamiliar with the code.
 
 ### Multiple parameters / return values
 
+**📌 Rule**:
+
 If the function has more than one parameter or returns values,
 describe each of them clearly.
 Specify the type and purpose of each parameter and return value.
+
+**✅ Good**:
 
 ```go
 package parser
@@ -1465,10 +1609,12 @@ func Tokenize(input string, delimiter string) ([]string, error) {
 
 ### Single parameter / return value
 
+**📌 Rule**:
+
 If the function has only one parameter and one return value,
 a brief description is sufficient but if necessary, you can still elaborate.
 
-**For example:**
+**✅ Good**:
 
 ```go
 package parser
@@ -1495,10 +1641,12 @@ func ParseType(s string) Type {
 
 ### No arguments / return values
 
+**📌 Rule**:
+
 If the function has no parameters or does not return any values,
 a simple description of its purpose is sufficient.
 
-**For example:**
+**✅ Good**:
 
 ```go
 package bootstrap
@@ -1511,9 +1659,23 @@ func Initialize() {
 
 ### No comments
 
+**📝 Exceptions / Notes**:
+
+This subsection is intentionally empty for now and can be expanded later with explicit anti-patterns.
+
 ## Exporting
 
+**📌 Rule**:
+
+Exporting rules define what should be visible outside the package and what must stay internal.
+
+**🤔 Why**:
+
+These rules keep package boundaries explicit and make APIs easier to reuse consistently.
+
 ### Functions must be exported
+
+**📌 Rule**:
 
 Every function or method is intended to be used outside its package and must be exported
 (i.e., its name should start with an uppercase letter).
@@ -1702,36 +1864,63 @@ func ParseConfig(data []byte) (*Config, error) {
 }
 ```
 
+**🔗 Related rules**:
+
+- [Any type must have a constructor](#any-type-must-have-a-constructor)
+- [Types must be exported](#types-must-be-exported)
+- [Fields must be unexported](#fields-must-be-unexported)
+
 ### Any type must have a constructor
+
+**📌 Rule**:
 
 Each struct or type must have a constructor function that initializes and returns an instance of the struct.
 The constructor should be named `New<TypeName>` and should set default values for the struct's fields if necessary.
 
 ### Types must be exported
 
+**📌 Rule**:
+
 All structs and types that are intended to be used outside their package must be exported
 (i.e., their names should start with an uppercase letter).
 This allows other packages to define them in outer function signatures.
+
+**🤔 Why**:
 
 But! **The fields of the structs must be unexported** to maintain encapsulation
 and prevent direct access from outside the package.
 
 ### Fields must be unexported
 
+**📌 Rule**:
+
 **All struct fields must be unexported** to maintain encapsulation and prevent direct access from outside the package.
+
+**🤔 Why**:
 
 When defining structs, ensure that all fields are unexported (i.e., start with a lowercase letter).
 This encapsulation helps maintain control over how data is accessed and modified.
 
 ## Test all
 
+**📌 Rule**:
+
 Every new feature or bugfix must include corresponding tests.
 Use Go's testing package to write unit tests that cover various scenarios and edge cases.
 
+**🤔 Why**:
+
+The rest of this style guide pushes complexity into APIs, types, and contracts.
+Tests are what make those rules safe to evolve over time.
+
 ### Testify
+
+**📌 Rule**:
 
 Use [testify package](https://github.com/stretchr/testify)
 to make **asserts** in your tests.
+
+**🤔 Why**:
 
 > ❌ Never use `t.Error()` because it definitely damages the reading!
 
@@ -1795,11 +1984,22 @@ func TestName_String(t *testing.T) {
 that some field is not nil pointer
 or the implementation must have some functionality
 
+**🔗 Related rules**:
+
+- [Structs in tests](#structs-in-tests)
+- [Parallel tests](#parallel-tests)
+
 ### Separate test packages
+
+**📌 Rule**:
 
 Add suffix `_test` to the name of the package you test.
 It obligates you to import the implementation
 and you have to declare a constructor for the type you test.
+
+**🤔 Why**:
+
+Testing through the public package boundary protects encapsulation and keeps you honest about the exported API.
 
 **❌ Bad:**
 
@@ -1871,10 +2071,22 @@ Using unexported fields in tests is also prohibited
 excluding the test structs in which we define the test cases.
 But it still does not allow you to use this fields of the implementation that you test!
 
+**🔗 Related rules**:
+
+- [Fields must be unexported](#fields-must-be-unexported)
+- [Any type must have a constructor](#any-type-must-have-a-constructor)
+- [Structs in tests](#structs-in-tests)
+
 ### Structs in tests
+
+**📌 Rule**:
 
 Create the structs to justify bootraping the cases in your tests.
 It improves declaration and understafing by reading of your test cases.
+
+**🤔 Why**:
+
+Dedicated `args` and `want` structs make test data more declarative and scale better than long anonymous field lists.
 
 **❌ Bad:**
 
@@ -2068,7 +2280,13 @@ and the code supposed to be more readable and understable.
 
 ### Parallel tests
 
+**📌 Rule**:
+
 Use `t.Parallel()` in all test cases where it could be used.
 But be careful to use it in the cases with asyncronious implementation
 because it may bring your test flacky so you may spend a lot of time to find out
 *yet another test you skip every second CI-job*
+
+**📝 Exceptions / Notes**:
+
+Parallelism is the default, but not when shared state, timing sensitivity, or asynchronous behavior makes the test unstable.
