@@ -4,8 +4,19 @@
 > This is not a general Go style guide.
 > This is the code style policy for this repository and its derived template-based projects
 
+## How to read this document
+
+**👀 Read this first**:
+
+- Treat the top-level sections as project rules, not general Go advice.
+- Read `❌ Bad` as an anti-pattern, `💀 Unacceptable` as a stronger anti-pattern, `✅ Good` as the default solution, and `⭐️ Better` as a refined version of the same idea.
+- Some bad examples are **intentionally broken** to demonstrate failure modes. When that is the point, the section says so explicitly.
+- Prefer the smallest example that proves the rule. Use larger multi-file examples only when package boundaries or interactions are part of the point.
+- When adding new sections, follow the template and guidance in [docs/style/section-template.md](docs/style/section-template.md).
+
 ## TLDR
 
+- [How to read this document](#how-to-read-this-document)
 - [Declarative style](#declarative-style)
   - [Immutability](#immutability)
   - [No Setters](#no-setters)
@@ -26,6 +37,8 @@
   - [Multiple parameters / return values](#multiple-parameters--return-values)
   - [Single parameter / return values](#single-parameter--return-value)
   - [No arguments / return values](#no-arguments--return-values)
+  - [Full example](#full-example)
+  - [No comments](#no-comments)
 - [Exporting](#exporting)
   - [Functions must be exported](#functions-must-be-exported)
   - [Any type must have a constructor](#any-type-must-have-a-constructor)
@@ -34,6 +47,7 @@
 - [Test all](#test-all)
   - [Testify](#testify)
   - [Separate test packages](#separate-test-packages)
+  - [Canonical test template](#canonical-test-template)
   - [Structs in tests](#structs-in-tests)
   - [Parallel tests](#parallel-tests)
 
@@ -1108,6 +1122,10 @@ And we **totally prohibit** this usage in our projects.
 `nil` pushes uncertainty into every consumer of a value.
 This section explains how to model optionality and pointer-based APIs without normalizing `nil` checks across the whole codebase.
 
+> [!CAUTION]
+> Some `❌ Bad` examples in this section are intentionally broken and may not compile.
+> This is deliberate: the point is to demonstrate how `nil`-driven APIs quickly become unsafe, awkward, or misleading.
+
 ### Nullable
 
 **📌 Rule**:
@@ -1550,6 +1568,8 @@ Use [GoDoc conventions](https://go.dev/doc/comment) for documentation.
 
 Documentation is part of the public contract of the code.
 If a new contributor cannot understand what a symbol is for from its comment, the API is harder to use correctly.
+What is obvious to one developer may be unclear to another one.
+These doc comments also become a lightweight built-in documentation system when the project has no dedicated Markdown docs, wiki, or Confluence pages.
 
 ### What the function does
 
@@ -1599,7 +1619,7 @@ package parser
 //
 //  Tokenize("a,b,c", ",") // returns []string{"a", "b", "c"}, nil
 func Tokenize(input string, delimiter string) ([]string, error) {
-    // ...
+    return nil, nil
 }
 ```
 
@@ -1631,7 +1651,7 @@ type Type string
 //  "feat(ui): add new button" // type is "feat"
 //  "fix: resolve issue" // type is "fix"
 func ParseType(s string) Type {
-    // ...
+    return ""
 }
 ```
 
@@ -1652,16 +1672,145 @@ a simple description of its purpose is sufficient.
 package bootstrap
 
 // Initialize sets up the necessary configurations for the application.
-func Initialize() {
-    // ...
+func Initialize() {}
+```
+
+### Full example
+
+**📌 Rule**:
+
+When a section needs a complete example, prefer one small exported type with documented unexported fields and documented public methods.
+
+**✅ Good**:
+
+```go
+package user
+
+// User describes an account in the customer area of an online store.
+//
+// User stores account data and exposes it through public methods.
+// All fields are unexported to keep the state encapsulated.
+type User struct {
+    // id stores the stable internal identifier of the user.
+    //
+    // The value is used to reference the user in storage, logs,
+    // and communication between application components.
+    id string
+
+    // email stores the email address of the user.
+    //
+    // The value is used for authentication, notifications,
+    // and order-related communication.
+    email string
+
+    // firstName stores the personal name of the user.
+    //
+    // The value is used in the profile and other interface elements
+    // that address the user directly.
+    firstName string
+
+    // lastName stores the family name of the user.
+    //
+    // The value is used together with firstName when the application
+    // needs to show the full name of the user.
+    lastName string
+}
+
+// NewUser creates a new User instance from the provided account data.
+//
+// NewUser only assigns the input values to the struct fields.
+//
+// Parameters:
+//   - id: stable internal identifier of the user.
+//   - email: email address used for authentication and notifications.
+//   - firstName: personal name of the user.
+//   - lastName: family name of the user.
+//
+// Returns:
+//   - *User: initialized user instance.
+func NewUser(
+    id string,
+    email string,
+    firstName string,
+    lastName string,
+) *User {
+    return &User{
+        id: id,
+        email: email,
+        firstName: firstName,
+        lastName: lastName,
+    }
+}
+
+// ID returns the stable internal identifier of the user.
+func (u *User) ID() string {
+    return u.id
+}
+
+// Email returns the email address of the user.
+func (u *User) Email() string {
+    return u.email
+}
+
+// FullName returns the full display name of the user.
+func (u *User) FullName() string {
+    return u.firstName + " " + u.lastName
 }
 ```
 
 ### No comments
 
-**📝 Exceptions / Notes**:
+**📌 Rule**:
 
-This subsection is intentionally empty for now and can be expanded later with explicit anti-patterns.
+Do not write comments inside function bodies.
+If something matters enough to explain, put that explanation into the doc comment of the function, method, type, or field.
+
+**🤔 Why**:
+
+Inline comments inside the function body usually compensate for naming or structure that should already be clear from the API.
+When the explanation sits in the doc comment instead, it helps both readers of the code and users of the symbol in editors and generated docs.
+
+**❌ Bad**:
+
+```go
+package order
+
+type Order struct {
+    price int64
+}
+
+func (o *Order) ApplyDiscount(discount int64) int64 {
+    // subtract the discount from the current price
+    price := o.price - discount
+    // return the discounted price to the caller
+    return price
+}
+```
+
+**✅ Good**:
+
+```go
+package order
+
+type Order struct {
+    price int64
+}
+
+// ApplyDiscount returns the discounted price of the order.
+//
+// ApplyDiscount calculates the result from the current order price
+// and the provided discount value.
+func (o *Order) ApplyDiscount(discount int64) int64 {
+    price := o.price - discount
+    return price
+}
+```
+
+**🔗 Related rules**:
+
+- [Document all](#document-all)
+- [What the function does](#what-the-function-does)
+- [Sentence structure](#sentence-structure)
 
 ## Exporting
 
@@ -1672,6 +1821,8 @@ Exporting rules define what should be visible outside the package and what must 
 **🤔 Why**:
 
 These rules keep package boundaries explicit and make APIs easier to reuse consistently.
+Functions and types are exported so they can participate in signatures, composition, and reuse across packages.
+Fields stay unexported so the package keeps control over invariants, naming, and future evolution.
 
 ### Functions must be exported
 
@@ -1704,10 +1855,10 @@ package file
 
 import "os"
 
-// read reads file by provided path and returns
+// Read reads file by provided path and returns
 // the slice of bytes read from the file
 // or returns error if something went wrong.
-func read(path string) ([]byte, error) {
+func Read(path string) ([]byte, error) {
     return os.ReadFile(path)
 }
 ```
@@ -1958,7 +2109,11 @@ func TestName_String(t *testing.T) {
 ```go
 package file
 
-import "testing"
+import (
+    "testing"
+
+    "github.com/stretchr/testify/assert"
+)
 
 func TestName_String(t *testing.T) {
     tests := []struct {
@@ -1986,6 +2141,187 @@ or the implementation must have some functionality
 
 **🔗 Related rules**:
 
+- [Structs in tests](#structs-in-tests)
+- [Parallel tests](#parallel-tests)
+
+### Canonical test template
+
+**📌 Rule**:
+
+Use one canonical test shape as the default starting point for ordinary unit tests.
+
+**🤔 Why**:
+
+When all tests look roughly the same, they are easier to scan, review, copy, and extend.
+
+**✅ Good: only value returned**:
+
+```go
+package file_test
+
+import (
+    "testing"
+
+    impl "github.com/you/repo/file"
+    "github.com/stretchr/testify/assert"
+    "github.com/stretchr/testify/require"
+)
+
+func TestName_String(t *testing.T) {
+    t.Parallel()
+    type want struct {
+        name string
+    }
+    tests := []struct {
+        name string
+        n file.Name
+        want want
+    }{
+        {
+            name: "returns original file name",
+            n: impl.NewName("example.txt")
+            want: want{
+                value: "example.txt",
+            },
+        },
+    }
+    for _, tt := range tests {
+        t.Run(tt.name, func(t *testing.T) {
+            t.Parallel()
+            assert.Equal(
+                t,
+                tt.want.value,
+                tt.n.String(),
+            )
+        })
+    }
+}
+```
+
+**✅ Good: value and error**:
+
+```go
+package file_test
+
+import (
+    "testing"
+
+    impl "github.com/you/repo/file"
+    "github.com/stretchr/testify/assert"
+)
+
+func TestParseName(t *testing.T) {
+    t.Parallel()
+
+    type args struct {
+        value string
+    }
+    type want struct {
+        name impl.Name
+        err error
+    }
+
+    tests := []struct {
+        name string
+        args args
+        want want
+    }{
+        {
+            name: "parses valid file name",
+            args: args{
+                value: "example.txt",
+            },
+            want: want{
+                name: impl.NewName("example.txt"),
+                err:  nil,
+            },
+        },
+        {
+            name: "returns error for invalid file name",
+            args: args{
+                value: "",
+            },
+            want: want{
+                name: impl.Name{},
+                err:  impl.ErrInvalidName,
+            },
+        },
+    }
+
+    for _, tt := range tests {
+        t.Run(tt.name, func(t *testing.T) {
+            t.Parallel()
+
+            got, gotErr := impl.ParseName(tt.args.value)
+            assert.Equal(t, tt.want.name, got)
+            assert.ErrorIs(t, gotErr, tt.want.err)
+        })
+    }
+}
+```
+
+**✅ Good: bool flag only**:
+
+```go
+package file_test
+
+import (
+    "testing"
+
+    impl "github.com/you/repo/file"
+    "github.com/stretchr/testify/assert"
+)
+
+func TestName_HasExt(t *testing.T) {
+    t.Parallel()
+
+    type args struct {
+        value string
+    }
+    type want struct {
+        ok bool
+    }
+
+    tests := []struct {
+        name string
+        args args
+        want want
+    }{
+        {
+            name: "returns true when file has extension",
+            args: args{
+                value: "example.txt",
+            },
+            want: want{
+                ok: true,
+            },
+        },
+        {
+            name: "returns false when file has no extension",
+            args: args{
+                value: "example",
+            },
+            want: want{
+                ok: false,
+            },
+        },
+    }
+
+    for _, tt := range tests {
+        t.Run(tt.name, func(t *testing.T) {
+            t.Parallel()
+
+            n := impl.NewName(tt.args.value)
+            assert.Equal(t, tt.want.ok, n.HasExt())
+        })
+    }
+}
+```
+
+**🔗 Related rules**:
+
+- [Testify](#testify)
+- [Separate test packages](#separate-test-packages)
 - [Structs in tests](#structs-in-tests)
 - [Parallel tests](#parallel-tests)
 
