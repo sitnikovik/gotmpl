@@ -25,6 +25,7 @@ git checkout -b feature/your-feature
 go test ./...
 ```
 
+- Update `CHANGELOG.md` for user-visible changes and keep it in the [Keep a Changelog](https://keepachangelog.com/ru/1.0.0/) format
 - Commit changes with a descriptive message, run the linters, and open a Pull Request
 - If the PR passes review and checks, it can be merged and released
 
@@ -41,6 +42,7 @@ or just get one of the already existing ones
 - Create branches only from issues
 - Create issues with template
 - Create pull request with template
+- Keep `CHANGELOG.md` up to date in the [Keep a Changelog](https://keepachangelog.com/ru/1.0.0/) format
 - Run linters before opening a pull request
 
 ## Code of Conduct
