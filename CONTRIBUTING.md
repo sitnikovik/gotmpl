@@ -2,13 +2,31 @@
 
 Thank you for your interest in this project! Here’s how you can help:
 
+> [!IMPORTANT]
+> Read [STYLE.MD](STYLE.MD) before writing code or opening a Pull Request.
+> This repository uses a project-specific code style, and contributions are expected to follow it.
+
 ## Getting Started
 
-Clone the repository and create a new branch:
+Suggested workflow:
+
+- Pick an open issue and work on it. Open a Pull Request that references the issue when you're ready
+- If there is no suitable issue for your idea, open a short issue describing the proposal or contact the maintainer first
+- Read [STYLE.MD](STYLE.MD) and follow the repository's code style before writing code
+- Fork the repository and create a feature branch:
 
 ```bash
 git checkout -b feature/your-feature
 ```
+
+- Run and add tests for new behavior:
+
+```bash
+go test ./...
+```
+
+- Commit changes with a descriptive message, run the linters, and open a Pull Request
+- If the PR passes review and checks, it can be merged and released
 
 ## Process
 
@@ -18,13 +36,12 @@ or just get one of the already existing ones
 
 ## Requirements
 
-- Code with [style guide](STYLE.md)
+- Read and follow the repository style guide in [STYLE.MD](STYLE.MD)
 - Setup pre-hooks
 - Create branches only from issues
 - Create issues with template
 - Create pull request with template
-- 
-
+- Run linters before opening a pull request
 
 ## Code of Conduct
 

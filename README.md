@@ -34,15 +34,7 @@ Describe the minimal requirements to work with the module.
 > Read [STYLE.MD](STYLE.MD) before making any code changes or opening a Pull Request.
 > This repository uses a project-specific style guide, and contributions are expected to follow it.
 
-Contributions are welcome. Suggested workflow:
-
-1. Pick an open issue and work on it. Open a Pull Request that references the issue when you're ready
-2. If there is no suitable issue for your idea, either open a short issue describing the proposal or contact me (watch my [bio](https://github.com/{github_nickname})) and we will create an issue for you.
-3. Read [STYLE.MD](STYLE.MD) and follow the repository's code style before writing code
-4. Fork the repository and create a feature branch: `git checkout -b feature/name`
-5. Run and add tests for new behavior: `go test ./...`
-6. Commit changes with a descriptive message, run the linters (we use `golangci-lint`), and open a Pull Request
-7. If the PR passes, we merge it and create version via GitHub releases
+Want to contribute? Read [CONTRIBUTING.md](CONTRIBUTING.md) for the full workflow, repository requirements, and Pull Request process.
 
 Please open an issue to discuss large or breaking changes before implementing.
 
