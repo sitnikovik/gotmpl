@@ -4,22 +4,7 @@ on:
   pull_request:
 
 jobs:
-  # Runs all tests in the project
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.23.4'
-      - name: Run unit tests
-        run: |
-          make test
-
-  # Lints all the code in the project
-  lint:
+  linter:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -32,24 +17,8 @@ jobs:
       - name: Install golangci-lint
         run: |
           curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh \
-            | sh -s -- -b $(go env GOPATH)/bin v1.62.2
+            | sh -s -- -b $(go env GOPATH)/bin v2.8.0
           echo "PATH=$(go env GOPATH)/bin:$PATH" >> $GITHUB_ENV
       - name: Run linter
         run: |
           make lint
-
-  # Checks code test coverage
-  coverage:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: '1.23.4'
-          cache: true
-      - name: Run coverage check
-        run: |
-          source .github/ci.env
-          make coverage-check

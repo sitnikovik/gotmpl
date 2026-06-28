@@ -21,18 +21,18 @@ jobs:
         run: chmod +x .github/scripts/*.sh
 
       - name: Validate version format
-        run: .github/scripts/validate_version.sh "${{ inputs.version }}"
+        run: .github/scripts/release/validate_version.sh "${{ inputs.version }}"
 
       - name: Check if tag exists
-        run: .github/scripts/check_tag_exists.sh "${{ inputs.version }}"
+        run: .github/scripts/release/check_tag_exists.sh "${{ inputs.version }}"
 
       - name: Extract changelog for version
-        run: .github/scripts/extract_changelog.sh "${{ inputs.version }}" /tmp/release_notes.md
+        run: .github/scripts/release/extract_changelog.sh "${{ inputs.version }}" /tmp/release_notes.md
 
       - name: Create git tag
-        run: .github/scripts/create_tag.sh "${{ inputs.version }}"
+        run: .github/scripts/release/create_tag.sh "${{ inputs.version }}"
 
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
-        run: .github/scripts/create_release.sh "${{ inputs.version }}" /tmp/release_notes.md
+        run: .github/scripts/release/create_release.sh "${{ inputs.version }}" /tmp/release_notes.md
