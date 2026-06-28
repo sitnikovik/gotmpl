@@ -43,7 +43,22 @@ or just get one of the already existing ones
 - Create issues with template
 - Create pull request with template
 - Keep `CHANGELOG.md` up to date in the [Keep a Changelog](https://keepachangelog.com/ru/1.0.0/) format
+- Follow [Semantic Versioning](https://semver.org/lang/ru/) for each release,
+and ensure every commit in the `master` branch is covered by a version tag created through the release process
 - Run linters before opening a pull request
+
+## Versioning and Release
+
+This project uses [Semantic Versioning](https://semver.org/lang/ru/).
+Every commit in the `master` branch must be associated with a product version tag.
+
+Do not create release tags manually.
+Use the `Release` GitHub Actions workflow instead:
+
+1. Prepare `CHANGELOG.md` for the future version
+in the [Keep a Changelog](https://keepachangelog.com/ru/1.0.0/) format
+2. Run the `Release` workflow and pass the future version number without the `v` prefix
+3. The workflow validates the version, extracts the matching section from `CHANGELOG.md`, creates a tag with the `v` prefix for the latest commit in `master`, and publishes the GitHub release with those changelog notes
 
 ## Code of Conduct
 
