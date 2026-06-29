@@ -19,11 +19,9 @@ filtered_file="${coverage_file}.filtered"
 head -n1 "${coverage_file}" > "${filtered_file}"
 grep -v '/cmd/' "${coverage_file}" | tail -n +2 >> "${filtered_file}"
 
-cd autograder
 percent=$(go tool cover -func="../${filtered_file}" 2>/dev/null \
 	| tail -n1 \
 	| awk '{print $NF}')
-cd ..
 
 rm -f "${filtered_file}"
 
