@@ -4,20 +4,9 @@
 # Usage: ./itsme.sh <github_nickname> <github_repo_name>
 # If no arguments provided, script will prompt for input interactively.
 
-prompt_var() {
-  local var_name=$1
-  local prompt_msg=$2
-  local default=$3
-  if [ -n "$default" ]; then
-    read -p "$prompt_msg [$default]: " var_value
-    if [ -z "$var_value" ]; then
-      var_value=$default
-    fi
-  else
-    read -p "$prompt_msg: " var_value
-  fi
-  eval "$var_name=\"\$var_value\""
-}
+# Imports
+CURDIR=$(dirname "$0")
+. "$CURDIR/prompt_var.sh"
 
 # Get arguments or prompt for them.
 GITHUB_NICKNAME=$1
