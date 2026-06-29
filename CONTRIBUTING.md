@@ -10,8 +10,23 @@ Thank you for your interest in this project! Here’s how you can help:
 
 Suggested workflow:
 
-- Pick an open issue and work on it. Open a Pull Request that references the issue when you're ready
-- If there is no suitable issue for your idea, open a short issue describing the proposal or contact the maintainer first
+- Clone the repository
+
+```bash
+git clone https://github.com/yourusername/your-repo.git
+```
+
+- Enter the directory of the cloned repository and run the script
+to replace templates with your name
+
+```bash
+sh ./scripts/itsme.sh
+```
+
+- Pick an open issue and work on it.
+Open a Pull Request that references the issue when you're ready
+- If there is no suitable issue for your idea,
+open a short issue describing the proposal or contact the maintainer first
 - Read [STYLE.MD](STYLE.MD) and follow the repository's code style before writing code
 - Fork the repository and create a feature branch:
 
