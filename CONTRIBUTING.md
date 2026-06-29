@@ -10,7 +10,19 @@ Here’s how you can contribute to our project and help us make it even better.
 
 ## Requirements
 
-TODO
+Before contributing, follow these rules:
+
+- follow the project code style
+- discuss changes through an issue
+and submit them through a pull request
+- work in a dedicated feature branch
+and pass all required checks before submission
+- use the required commit message convention
+and update the changelog for user-visible changes
+- follow the project release process:
+  - semantic versioning
+  - no manual tags
+  - and a version tag for every commit in the master branch
 
 ## Getting Started
 
