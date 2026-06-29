@@ -2,18 +2,39 @@
 
 # Script to replace placeholders in specified files with provided GitHub nickname and repository name.
 # Usage: ./itsme.sh <github_nickname> <github_repo_name>
+# If no arguments provided, script will prompt for input interactively.
 
+prompt_var() {
+  local var_name=$1
+  local prompt_msg=$2
+  local default=$3
+  if [ -n "$default" ]; then
+    read -p "$prompt_msg [$default]: " var_value
+    if [ -z "$var_value" ]; then
+      var_value=$default
+    fi
+  else
+    read -p "$prompt_msg: " var_value
+  fi
+  eval "$var_name=\"\$var_value\""
+}
+
+# Get arguments or prompt for them.
 GITHUB_NICKNAME=$1
 GITHUB_REPO=$2
-
 if [ -z "$GITHUB_NICKNAME" ] || [ -z "$GITHUB_REPO" ]; then
-  echo "Usage: $0 <github_nickname> <github_repo_name>"
-  exit 1
+  DEFAULT_NICKNAME="${GITHUB_NICKNAME:-$(git config --global user.github 2>/dev/null)}"
+  DEFAULT_REPO="${GITHUB_REPO:-$(basename "$(pwd)")}"
+  if [ -z "$GITHUB_NICKNAME" ]; then
+    prompt_var GITHUB_NICKNAME "Enter GitHub nickname" "$DEFAULT_NICKNAME"
+  fi
+  if [ -z "$GITHUB_REPO" ]; then
+    prompt_var GITHUB_REPO "Enter repository name" "$DEFAULT_REPO"
+  fi
 fi
 
-# List of files to check.
+# Replace placeholders in files.
 FILES="README.md CONTRIBUTING.md"
-
 for FILE in $FILES; do
   if [ ! -f "$FILE" ]; then
     echo "❌ File '$FILE' does not exist."
