@@ -14,7 +14,7 @@
 - Prefer the smallest example that proves the rule. Use larger multi-file examples only when package boundaries or interactions are part of the point.
 - When adding new sections, follow the template and guidance in [docs/style/section-template.md](docs/style/section-template.md).
 
-## TLDR
+## Contents
 
 - [How to read this document](#how-to-read-this-document)
 - [Declarative style](#declarative-style)
