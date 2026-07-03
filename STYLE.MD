@@ -25,6 +25,7 @@
   - [One type — one constructor](#one-type--one-constructor)
   - [No logic in constructors](#no-logic-in-constructors)
   - [Custom types](#custom-types)
+- [Vertical formatting](#vertical-formatting)
 - [No newlines in functions](#no-newlines-in-functions)
 - [No nil](#no-nil)
   - [Nullable](#nullable)
@@ -1029,6 +1030,97 @@ so you can modify it quite easy.
 - [Types must be exported](#types-must-be-exported)
 - [Fields must be unexported](#fields-must-be-unexported)
 
+## Vertical formatting
+
+**📌 Rule**:
+
+Prefer vertical formatting for function calls, method calls, composite literals,
+and other expressions that contain several parts.
+If a call or expression contains arguments, options, or chained calls,
+write each part on its own line.
+
+**🤔 Why**:
+
+Vertical formatting improves readability on small screens
+and makes nested or extended expressions easier to scan.
+It also makes diffs cleaner because adding, removing, or changing one argument
+usually changes only one line.
+
+**❌ Bad**:
+
+The examples below pack too much information into one line.
+That makes the code harder to scan and easier to miss during review.
+
+```go
+package main
+
+import "your_module/order"
+
+func main() {
+    orderWithPrice := order.NewOrder("uuid1", "status1", order.WithPrice(100))
+    _, _ = orderWithPrice, order.NewOrder("uuid2", "status2", order.WithPrice(200), order.WithAddress("Los Santos, Groov street"))
+}
+```
+
+```go
+package main
+
+func main() {
+    query := sql.Select("id", "email").From("users").Where("active = ?", true)
+    _ = query
+}
+```
+
+**✅ Good**:
+
+The examples below give each argument or method call its own line.
+That creates a stable visual structure and improves readability.
+
+```go
+package main
+
+import "your_module/order"
+
+func main() {
+    orderWithPrice := order.NewOrder(
+        "uuid1",
+        "status1",
+        order.WithPrice(100),
+    )
+    orderWithDetails := order.NewOrder(
+        "uuid2",
+        "status2",
+        order.WithPrice(200),
+        order.WithAddress("Los Santos, Groove street"),
+    )
+    _, _ = orderWithPrice, orderWithDetails
+}
+```
+
+```go
+package main
+
+func main() {
+    query := sql.
+        Select("id", "email").
+        From("users").
+        Where("active = ?", true)
+    _ = query
+}
+```
+
+**📝 Exceptions / Notes**:
+
+Calls without arguments may stay on one line.
+
+If you are not sure which form to choose,
+prefer the multiline version by default.
+
+**🔗 Related rules**:
+
+- [Functional options](#functional-options)
+- [No newlines in functions](#no-newlines-in-functions)
+
 ## No newlines in functions
 
 **📌 Rule**:
@@ -1862,7 +1954,6 @@ func Read(path string) ([]byte, error) {
     return os.ReadFile(path)
 }
 ```
-
 
 **❌ Bad:**
 
