@@ -21,4 +21,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Standardized local validation around `make check`.
 - Formalized the release process with semantic versioning,
 automated tags, and changelog-based release notes.
+- Extended the release workflow to run automatically after merging a pull request
+with a `release: vX.Y.Z` title.
 - Improved contributor onboarding and repository workflow documentation.
