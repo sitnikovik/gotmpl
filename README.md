@@ -34,6 +34,20 @@ Want to contribute? Read [CONTRIBUTING.md](CONTRIBUTING.md) for the full workflo
 
 Please open an issue to discuss large or breaking changes before implementing.
 
+### Pull Request shortcuts
+
+Use `make pr` to create typed pull requests through `gh` with templates from `.github/PULL_REQUEST_TEMPLATE/`.
+
+```sh
+export GH_TOKEN=<github-token>
+make pr feature 45
+make pr bug 45
+make pr task 45
+make pr release v1.0.0
+```
+
+`feature`, `bug`, and `task` expect an issue number. `release` expects a version string.
+
 ## License
 
 This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
