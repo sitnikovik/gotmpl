@@ -106,6 +106,13 @@ and keep it in the [Keep a Changelog](https://keepachangelog.com/ru/1.0.0/) form
     Your PR must pass all workflows and be approved in code review
     by at least one maintainer before it can be merged.
 
+    > [!IMPORTANT]
+    > Merge Pull Requests with squash
+
+    Merging with squash keeps the `master` branch clean
+    and avoids polluting it with intermediate
+    or unnecessary commits from the review process.
+
 ## Versioning and Release
 
 This project uses [Semantic Versioning](https://semver.org/lang/ru/).
