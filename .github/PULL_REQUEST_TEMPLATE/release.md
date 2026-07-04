@@ -1,6 +1,6 @@
 # Summary
 
-Prepare the release for version {{VERSION}}.
+{{SUMMARY}}
 
 ## Release Checklist
 
