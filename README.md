@@ -30,21 +30,11 @@ Describe the minimal requirements to work with the module.
 
 ## Contributing
 
-Want to contribute? Read [CONTRIBUTING.md](CONTRIBUTING.md) for the full workflow, repository requirements, and Pull Request process.
+Want to contribute?
+Read [CONTRIBUTING.md](CONTRIBUTING.md)
+for the full workflow, repository requirements, and Pull Request process.
 
 Please open an issue to discuss large or breaking changes before implementing.
-
-### Pull Request shortcuts
-
-Use `make pr release <version>` to prepare a release pull request from `.github/PULL_REQUEST_TEMPLATE/release.md`.
-
-```sh
-make pr release v1.0.0
-```
-
-The command reads the matching version block from `CHANGELOG.md`, injects it into the PR summary, and opens the GitHub Pull Request page in the browser with prefilled query parameters.
-
-If the requested version is missing from `CHANGELOG.md`, the command fails.
 
 ## License
 

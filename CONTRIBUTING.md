@@ -88,7 +88,20 @@ and keep it in the [Keep a Changelog](https://keepachangelog.com/ru/1.0.0/) form
     If you are not sure which version the change belongs to,
     discuss it with the maintainer first.
 
-9. Submit a pull request using the template.
+9. Submit a pull request.
+
+    Use `make pr release <version>` to prepare a release pull request
+    from `.github/PULL_REQUEST_TEMPLATE/release.md`.
+
+    ```sh
+    make pr release v1.0.0
+    ```
+
+    The command reads the matching version block from `CHANGELOG.md`,
+    injects it into the PR summary, and opens the GitHub Pull Request page
+    in the browser with prefilled query parameters.
+
+    If the requested version is missing from `CHANGELOG.md`, the command fails.
 
     Your PR must pass all workflows and be approved in code review
     by at least one maintainer before it can be merged.
