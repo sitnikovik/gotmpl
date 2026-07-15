@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Go Guard reusable workflow was added to check for the presence of `go.mod`.
 - Integration tests were added to the default `make test` flow.
 
 ### Fixed
@@ -17,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Tests and Quality workflows now require Go Guard to run first and skip Go-specific jobs when `go.mod` is missing.
 - Coverage generation and reporting were refined for unit and integration tests.
 
 ## [1.0.1] - 2026-07-04
