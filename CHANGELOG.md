@@ -5,6 +5,25 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/2.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.2] - 2026-07-15
+
+### Added
+
+- Go Guard reusable workflow was added to check for the presence of `go.mod`.
+- Integration tests were added to the default `make test` flow.
+
+### Fixed
+
+- CI test workflow was corrected to run the proper coverage target.
+- Set correct patterns in all files to be replaced with `make setup`
+so that is why any file is not changed on the command called
+
+### Changed
+
+- Tests and Quality workflows now require Go Guard to run first and skip Go-specific jobs when `go.mod` is missing.
+- Coverage generation and reporting were refined for unit and integration tests.
+- golangci-lint configuration was migrated to v2 format, including updated linter, exclusions, formatter, and output sections.
+
 ## [1.0.1] - 2026-07-04
 
 ### Fixed
