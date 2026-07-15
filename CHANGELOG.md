@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Tests and Quality workflows now require Go Guard to run first and skip Go-specific jobs when `go.mod` is missing.
 - Coverage generation and reporting were refined for unit and integration tests.
+- golangci-lint configuration was migrated to v2 format, including updated linter, exclusions, formatter, and output sections.
 
 ## [1.0.1] - 2026-07-04
 
