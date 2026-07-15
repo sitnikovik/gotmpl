@@ -4,7 +4,12 @@ on:
   pull_request:
 
 jobs:
+  go-guard:
+    uses: ./.github/workflows/go_guard.yml
+
   linter:
+    needs: go-guard
+    if: needs.go-guard.outputs.go_mod_exists == 'true'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
