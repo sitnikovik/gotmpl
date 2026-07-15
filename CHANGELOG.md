@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - CI test workflow was corrected to run the proper coverage target.
+- Set correct patterns in all files to be replaced with `make setup`
+so that is why any file is not changed on the command called
 
 ### Changed
 
