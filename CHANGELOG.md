@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/2.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- `make check` now calls the valid `coverage` target instead of the non-existing `coverage-check` target.
+- Local quality checks no longer fail on freshly initialized repositories without Go packages: unit tests, integration tests, lint, and coverage checks now skip gracefully with clear messages.
+
 ## [1.0.2] - 2026-07-15
 
 ### Added
