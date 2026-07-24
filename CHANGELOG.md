@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added `make reset-changelog` command that initializes CHANGELOG.md with the standard Keep a Changelog format and [Unreleased] section.
+- Added `make reset-changelog` command that initializes CHANGELOG.md with the standard Keep a Changelog format and template sections.
 
 ### Changed
 
