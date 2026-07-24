@@ -14,6 +14,7 @@ itsme:
 
 .PHONY: reset-changelog
 reset-changelog:
+	@set -e;
 	@printf '%s\n' \
 		'# Changelog' \
 		'' \
@@ -24,4 +25,14 @@ reset-changelog:
 		'' \
 		'## [Unreleased]' \
 		'' \
-		"What's new?" > CHANGELOG.md
+		'### Added' \
+ 		'' \
+ 		'### Changed' \
+ 		'' \
+ 		'### Deprecated' \
+ 		'' \
+ 		'### Removed' \
+ 		'' \
+ 		'### Fixed' \
+ 		'' \
+ 		'### Security' > CHANGELOG.md
