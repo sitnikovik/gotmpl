@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/2.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Added `make reset-changelog` command that initializes CHANGELOG.md with the standard Keep a Changelog format and template sections.
+
+### Changed
+
+- Included `make reset-changelog` as a dependency of `make setup` to ensure a consistent changelog state during project initialization.
+
 ## [1.0.3] - 2026-07-15
 
 ### Fixed
